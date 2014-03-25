@@ -12,6 +12,7 @@ import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.client.utils.URIBuilder;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.btc4all.webfinger.pojo.JsonResourceDescriptor;
+import org.btc4all.webfinger.pojo.Link;
 
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
@@ -43,18 +44,36 @@ public class WebfingerClient {
 
 		String[] parts = new URI(resource).getRawSchemeSpecificPart().split("@");
 
-		HttpGet fingerHttpGet = new HttpGet("https://"+parts[parts.length-1]+"/.well-known/webfinger");
-		URI uri = new URIBuilder(fingerHttpGet.getURI()).addParameter("resource", "acct:"+resource).build();
-		HttpRequestBase request = new HttpGet(uri);
-		request.setHeader("Accept-Encoding","application/jrd+json");
-		jrd = getJRD(request);
+		try{
+			HttpGet fingerHttpGet = new HttpGet("https://"+parts[parts.length-1]+"/.well-known/webfinger");
+			URI uri = new URIBuilder(fingerHttpGet.getURI()).addParameter("resource", "acct:"+resource).build();
+			HttpRequestBase request = new HttpGet(uri);
+			request.setHeader("Accept-Encoding","application/jrd+json");
+			jrd = getJRD(request);
+		}catch(Exception e){
+		}
 			
 		if (jrd ==null && webfistFallback){
-			HttpGet fistHttpGet = new HttpGet("https://bitfinger.org/.well-known/webfinger");
-			URI uri2 = new URIBuilder(fistHttpGet.getURI()).addParameter("resource", "acct:"+resource).build();
-			HttpRequestBase fistRequest = new HttpGet(uri2);
-			request.setHeader("Accept-Encoding","application/jrd+json");
-			jrd = getJRD(fistRequest);
+			HttpGet bitHttpGet = new HttpGet("https://bitfinger.org/.well-known/webfinger");
+			URI uri2 = new URIBuilder(bitHttpGet.getURI()).addParameter("resource", "acct:"+resource).build();
+			HttpRequestBase bitRequest = new HttpGet(uri2);
+			bitRequest.setHeader("Accept-Encoding","application/jrd+json");
+			jrd = getJRD(bitRequest);
+			//TODO: verify proof and DKIM
+			//resolve content
+			if (null!=jrd && null!=jrd.getLinks()){
+				for (Link l : jrd.getLinks()){
+					if (l.getRel().contains("webfist.org/spec/rel")){
+						HttpGet contentHttpGet = new HttpGet(l.getHref());
+						URI contentUri = new URIBuilder(contentHttpGet.getURI()).build();
+						HttpRequestBase contentRequest = new HttpGet(contentUri);
+						contentRequest.setHeader("Accept-Encoding","application/javascript");
+						jrd = getJRD(contentRequest);
+						break;
+					}
+				}
+			}
+
 		}
 		return jrd;
 	}

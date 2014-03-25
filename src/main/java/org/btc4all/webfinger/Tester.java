@@ -4,8 +4,7 @@ import java.io.IOException;
 import java.net.URISyntaxException;
 
 import org.btc4all.webfinger.pojo.JsonResourceDescriptor;
-
-import com.fasterxml.jackson.databind.ObjectMapper;
+import org.btc4all.webfinger.pojo.Link;
 
 public class Tester {
 
@@ -16,8 +15,19 @@ public class Tester {
 	 */
 	public static void main(String[] args) throws URISyntaxException, IOException {
 		WebfingerClient wc = new WebfingerClient(true);
-		JsonResourceDescriptor jrd = wc.webFinger("makingabetter@gmail.com");
-		System.out.println(new ObjectMapper().writeValueAsString(jrd));
+		JsonResourceDescriptor jrd = wc.webFinger("jangkim321@gmail.com");
+		String bitcoinAddr = null;
+		for (Link l : jrd.getLinks()){
+			if (l.getRel().contains("bitcoin")){
+				bitcoinAddr = l.getHref().toString();
+			}
+		}
+		if (bitcoinAddr!=null){
+			//parse link
+			String[] str = 	bitcoinAddr.split(":");
+			bitcoinAddr = str[(str.length>2)?1:str.length-1];
+		}
+		System.out.println(bitcoinAddr);
 	}
 
 }
