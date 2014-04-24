@@ -6,3 +6,4 @@ datanucleus.log
 **/aws.properties
 *.crt
 *.key
+.idea

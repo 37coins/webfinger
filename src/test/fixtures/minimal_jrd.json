@@ -1,0 +1,6 @@
+{
+    "uri" : "bob@example.com",
+    "response" : {
+        "subject" : "acct:bob@example.com"
+    }
+}

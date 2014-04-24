@@ -4,7 +4,7 @@
 	<artifactId>webfinger</artifactId>
 	<packaging>jar</packaging>
 	<description>A Webfinger and host-meta client library for Java</description>
-	<name>webfinge</name>
+	<name>webfinger</name>
 	<groupId>org.btc4all</groupId>
 	<version>0.2.0-SNAPSHOT</version>
 
@@ -24,12 +24,7 @@
 			<artifactId>slf4j-simple</artifactId>
 			<version>1.7.5</version>
 		</dependency>
-		<dependency>
-		    <groupId>junit</groupId>
-		    <artifactId>junit</artifactId>
-		    <version>4.11</version>
-		</dependency>
-		<dependency>
+        <dependency>
 		    <groupId>com.fasterxml.jackson.core</groupId>
 		    <artifactId>jackson-databind</artifactId>
 		    <version>2.3.1</version>
@@ -39,6 +34,19 @@
 			<artifactId>jackson-annotations</artifactId>
 			<version>2.3.1</version>
 		</dependency>
+
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.11</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-all</artifactId>
+            <version>1.8.4</version>
+            <scope>test</scope>
+        </dependency>
 	</dependencies>
 
 	<build>

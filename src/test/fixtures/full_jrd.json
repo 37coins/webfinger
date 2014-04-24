@@ -1,0 +1,30 @@
+{
+    "uri" : "bob@example.com",
+    "response" : {
+        "subject" : "acct:bob@example.com",
+        "aliases" :
+            [
+                "https://www.example.com/~bob/"
+            ],
+        "properties" :
+        {
+            "http://example.com/ns/role" : "employee",
+            "http://example.com/ns/sex" : "male"
+        },
+        "links" :
+            [
+                {
+                    "rel" : "http://webfinger.example/rel/profile-page",
+                    "type" : "text/html",
+                    "href" : "https://www.example.com/~bob/",
+                    "titles": {
+                        "en-us" : "Bob's webpage",
+                        "und" : "La pagina web de Bob"
+                    },
+                    "properties": {
+                        "http://webfinger.example/rel/nsfw": true
+                    }
+                }
+            ]
+    }
+}
