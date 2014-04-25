@@ -120,39 +120,6 @@ public class WebfingerClientTest extends AbstractWebfingerClientTest {
         verify(mockHttpClient).execute(argThat(hasHttpsScheme()));
     }
 
-    /**  RFC 7033 4 and 8.2 */
-    @Test
-    public void shouldDeriveTargetHostFromURI() throws IOException {
-        setUpToRespondWith(Response.NOT_FOUND);
-        client.webFinger("bob@example.com");
-        verify(mockHttpClient).execute(argThat(hasHostnameMatching("example.com")));
-    }
-
-    /**  RFC 3986 3.2.2 */
-    @Test
-    public void shouldWorkWithIPv4Hosts() throws IOException {
-        setUpToRespondWith(Response.NOT_FOUND);
-        client.webFinger("bob@192.168.0.11");
-        verify(mockHttpClient).execute(argThat(hasHostnameMatching("192.168.0.11")));
-    }
-
-    /**  RFC 3986 3.2.2 */
-    @Test
-    public void shouldWorkWithIPLiteralHosts() throws IOException {
-        setUpToRespondWith(Response.NOT_FOUND);
-        client.webFinger("bob@[2001:db8:85a3:0:0:8a2e:370:7334]");
-        verify(mockHttpClient).execute(argThat(hasHostnameMatching("[2001:db8:85a3:0:0:8a2e:370:7334]")));
-    }
-
-    /**  RFC 3986 3.2.2 */
-    //todo: need to check if percent-encoding applicable to domain part of email
-    @Test
-    public void shouldWorkWithPercentEncodedHosts() throws IOException {
-        setUpToRespondWith(Response.NOT_FOUND);
-        client.webFinger("bob@%D1%82%D0%B5%D1%81%D1%82.%D1%80%D1%84");
-        verify(mockHttpClient).execute(argThat(hasHostnameMatching("%D1%82%D0%B5%D1%81%D1%82.%D1%80%D1%84")));
-    }
-
     /**  RFC 3986 3.2.2 */
     @Test
     public void shouldConvertHostToLowercase() throws IOException {
@@ -173,8 +140,18 @@ public class WebfingerClientTest extends AbstractWebfingerClientTest {
     @Test
     public void requestShouldContainURIScheme() throws IOException {
         setUpToRespondWith("valid_jrd.json");
-        client.webFinger(TEST_ACCT);
+        client.webFinger("bob@example.com");
         verify(mockHttpClient).execute(argThat(hasParameterMatching("resource", "^\\w+%3A.*")));
+    }
+
+    @Test
+    public void shouldWorkWithResourcesWithScheme() throws IOException {
+        setUpToRespondWith("valid_jrd.json");
+        client.webFinger("acct:bob@example.com");
+        verify(mockHttpClient).execute(argThat(hasParameterMatching("resource", "acct%3Abob%40example\\.com")));
+
+        client.webFinger("http://example.com/bob");
+        verify(mockHttpClient).execute(argThat(hasParameterMatching("resource", "http%3A%2F%2Fexample\\.com%2Fbob")));
     }
 
     /**  RFC 7033 4.1 */
@@ -270,12 +247,5 @@ public class WebfingerClientTest extends AbstractWebfingerClientTest {
     public void shouldValidateCertOnRedirect() {
 
     }
-
-    @Test
-    public void shouldFallbackToWebfist() {
-
-    }
-
-
 
 }
