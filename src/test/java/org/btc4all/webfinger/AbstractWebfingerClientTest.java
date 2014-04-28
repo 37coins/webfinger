@@ -24,7 +24,7 @@ public class AbstractWebfingerClientTest {
 
     public static final String TEST_ACCT = "bob@example.com";
 
-    protected static WebfingerClient client;
+    protected static WebFingerClient client;
 
     protected static MockHelper testHelper;
 
@@ -35,7 +35,7 @@ public class AbstractWebfingerClientTest {
     public static void setUpClass() {
         testHelper = new MockHelper();
         mockHttpClient = mock(HttpClient.class);
-        client = new WebfingerClient(false);
+        client = new WebFingerClient(false);
     }
 
     protected void setUpToRespondWith(String filename) {

@@ -12,19 +12,21 @@ import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Iterator;
+import java.util.List;
 
 import static org.btc4all.webfinger.matchers.Matchers.*;
 import static org.junit.Assert.*;
 
 /**  @author Kosta Korenkov <7r0ggy@gmail.com> */
 @RunWith(JUnit4.class)
-public class WebfingerBasicTest extends AbstractWebfingerClientTest {
+public class WebFingerBasicTest extends AbstractWebfingerClientTest {
 
 
     /**  RFC 7033 4.4 */
     @Test
-    public void shouldIgnoreUnknownJRDMembers() {
+    public void shouldIgnoreUnknownJRDMembers() throws WebFingerClientException {
         setUpToRespondWith("unwanted_member_jrd.json");
         JsonResourceDescriptor jrd = client.webFinger(TEST_ACCT);
         assertNotNull(jrd);
@@ -32,7 +34,7 @@ public class WebfingerBasicTest extends AbstractWebfingerClientTest {
 
     /**  RFC 7033 4.4 */
     @Test
-    public void shouldAcceptResponseWithMinimalJRD() {
+    public void shouldAcceptResponseWithMinimalJRD() throws WebFingerClientException {
         setUpToRespondWith("minimal_jrd.json");
         JsonResourceDescriptor jrd = client.webFinger(TEST_ACCT);
         assertNull(jrd.getAliases());
@@ -42,7 +44,7 @@ public class WebfingerBasicTest extends AbstractWebfingerClientTest {
 
     /**  RFC 7033 4.4 */
     @Test
-    public void shouldAcceptResponseWithLinksWithoutTypeAndHref() {
+    public void shouldAcceptResponseWithLinksWithoutTypeAndHref() throws WebFingerClientException {
         setUpToRespondWith("valid_jrd.json");
         JsonResourceDescriptor jrd = client.webFinger(TEST_ACCT);
         assertEquals("http://webfinger.example/rel/no-href-link", jrd.getLinks().get(1).getRel());
@@ -52,7 +54,7 @@ public class WebfingerBasicTest extends AbstractWebfingerClientTest {
 
     /**  RFC 7033 4.4 */
     @Test
-    public void shouldReturnAllKnownJRDMembers() {
+    public void shouldReturnAllKnownJRDMembers() throws WebFingerClientException {
         setUpToRespondWith("full_jrd.json");
         JsonResourceDescriptor jrd = client.webFinger("bob@example.com");
 
@@ -95,7 +97,7 @@ public class WebfingerBasicTest extends AbstractWebfingerClientTest {
      * it wishes to utilize.
      * */
     @Test
-    public void shouldPreferTheLastLanguageTagTitleValueIfSeveralExistForTheSameTag() {
+    public void shouldPreferTheLastLanguageTagTitleValueIfSeveralExistForTheSameTag() throws WebFingerClientException {
         setUpToRespondWith("duplicate_language_tag_titles_jrd.json");
         JsonResourceDescriptor jrd = client.webFinger(TEST_ACCT);
         Link link = jrd.getLinks().get(0);
@@ -109,23 +111,15 @@ public class WebfingerBasicTest extends AbstractWebfingerClientTest {
 
     /**  RFC 7033 4.2 */
     @Test
-    public void shouldUseOnlyHttps() throws IOException {
+    public void shouldUseOnlyHttps() throws IOException, WebFingerClientException {
         setUpToRespondWith("valid_jrd.json");
         client.webFinger(TEST_ACCT);
         verifyHttpClientExecutedWithArgThat(hasHttpsScheme());
     }
 
-    /**  RFC 3986 3.2.2 */
-    @Test
-    public void shouldConvertHostToLowercase() throws IOException {
-        setUpToRespondWith(Response.notFound());
-        client.webFinger("bob@EXAMPLE.com");
-        verifyHttpClientExecutedWithArgThat(hasHostnameMatching("example.com"));
-    }
-
     /**  RFC 7033 4.1 */
     @Test
-    public void requestShouldContainResourceParameterInQuery() throws IOException {
+    public void requestShouldContainResourceParameterInQuery() throws IOException, WebFingerClientException {
         setUpToRespondWith("valid_jrd.json");
         client.webFinger(TEST_ACCT);
         verifyHttpClientExecutedWithArgThat(hasParameterMatching("resource", ".*"));
@@ -133,21 +127,21 @@ public class WebfingerBasicTest extends AbstractWebfingerClientTest {
 
     /**  RFC 7033 8.1 */
     @Test
-    public void requestShouldContainURIScheme() throws IOException {
+    public void requestShouldContainURIScheme() throws IOException, WebFingerClientException {
         setUpToRespondWith("valid_jrd.json");
         client.webFinger("bob@example.com");
         verifyHttpClientExecutedWithArgThat(hasParameterMatching("resource", "^\\w+%3A.*"));
     }
 
     @Test
-    public void shouldWorkWithResourcesWithScheme() throws IOException {
+    public void shouldWorkWithResourcesWithScheme() throws IOException, WebFingerClientException {
         setUpToRespondWith("valid_jrd.json");
         client.webFinger("acct:bob@example.com");
         verifyHttpClientExecutedWithArgThat(hasParameterMatching("resource", "acct%3Abob%40example\\.com"));
     }
 
     @Test
-    public void shouldWorkWithResourcesWithHttpResources() throws IOException {
+    public void shouldWorkForHttpResources() throws IOException, WebFingerClientException {
         setUpToRespondWith("valid_jrd.json");
 
         client.webFinger("http://example.com/bob");
@@ -157,7 +151,7 @@ public class WebfingerBasicTest extends AbstractWebfingerClientTest {
 
     /**  RFC 7033 4.1 */
     @Test
-    public void requestParametersShouldBePercentEncoded() throws IOException {
+    public void requestParametersShouldBePercentEncoded() throws IOException, WebFingerClientException {
         setUpToRespondWith("valid_jrd.json");
         client.webFinger("bob@example.com");
         verifyHttpClientExecutedWithArgThat(hasParameterMatching("resource", "acct%3Abob%40example\\.com"));
@@ -165,30 +159,22 @@ public class WebfingerBasicTest extends AbstractWebfingerClientTest {
 
     /**  RFC 7033 4.2 */
     @Test
-    public void shouldFailOn4xxResponse() {
-        setUpToRespondWith(Response.notFound());
-        assertNull(client.webFinger(TEST_ACCT)); //TODO: is it really the best way to specify that no data found?
+    public void shouldFailOnErrorResponse() {
+        List<Integer> errorStatusCodes = Arrays.asList(400, 401, 403, 404, 500, 503);
 
-        setUpToRespondWith(Response.forbidden());
-        assertNull(client.webFinger(TEST_ACCT));
-
-        setUpToRespondWith(Response.badRequest());
-        assertNull(client.webFinger(TEST_ACCT));
+        for (Integer statusCode : errorStatusCodes) {
+            setUpToRespondWith(Response.create(statusCode));
+            try {
+                client.webFinger(TEST_ACCT);
+            } catch (Exception e) {
+                assertEquals(ResourceNotFoundException.class, e.getClass());
+            }
+        }
     }
 
     /**  RFC 7033 4.2 */
     @Test
-    public void shouldFailOn5xxResponse() {
-        setUpToRespondWith(Response.serverError());
-        assertNull(client.webFinger(TEST_ACCT));
-
-        setUpToRespondWith(Response.serviceUnavailable());
-        assertNull(client.webFinger(TEST_ACCT));
-    }
-
-    /**  RFC 7033 4.2 */
-    @Test
-    public void requestShouldSpecifyJRDAcceptHeader() throws IOException {
+    public void requestShouldSpecifyJRDAcceptHeader() throws IOException, WebFingerClientException {
         setUpToRespondWith("valid_jrd.json");
 
         client.webFinger("bob@example.com");

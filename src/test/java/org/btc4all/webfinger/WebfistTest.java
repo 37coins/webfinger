@@ -7,6 +7,8 @@ import org.btc4all.webfinger.pojo.JsonResourceDescriptor;
 import org.hamcrest.Matcher;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.JUnit4;
 import org.mockito.InOrder;
 
 import java.io.IOException;
@@ -19,14 +21,15 @@ import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.*;
 
 /**
- * Inherits the set of tests defined in WebfingerBasicTest to be ran against the WebFist fallback code.
+ * Inherits the set of tests defined in WebFingerBasicTest to be ran against the WebFist fallback code.
  *
  * @author Kosta Korenkov <7r0ggy@gmail.com>
  */
-public class WebfistTest extends WebfingerBasicTest {
+@RunWith(JUnit4.class)
+public class WebFistTest extends WebFingerBasicTest {
 
     @Test
-    public void shouldFallbackToWebfist() throws IOException {
+    public void shouldFallbackToWebfist() throws IOException, WebFingerClientException {
         setUpToRespondWith("valid_jrd.json");
 
         JsonResourceDescriptor jrd = client.webFinger("pithy.example@gmail.com");
@@ -43,7 +46,7 @@ public class WebfistTest extends WebfingerBasicTest {
     }
 
     @Test
-    public void shouldFailIfWebfistServerIsUnavailable() throws IOException {
+    public void shouldFailIfWebfistServerIsUnavailable() throws IOException, WebFingerClientException {
         when(mockHttpClient.execute(any(HttpUriRequest.class)))
                 .thenReturn(Response.notFound());
         when(mockHttpClient.execute(argThat(hasUrl("https://webfist.org/"))))
@@ -54,7 +57,7 @@ public class WebfistTest extends WebfingerBasicTest {
     }
 
     @Test
-    public void shouldFailIfDKIMSignatureIsInvalid() throws IOException {
+    public void shouldFailIfDKIMSignatureIsInvalid() throws IOException, WebFingerClientException {
         when(mockHttpClient.execute(any(HttpUriRequest.class)))
                 .thenReturn(Response.notFound());
         when(mockHttpClient.execute(argThat(hasUrl("https://webfist.org/"))))
@@ -71,7 +74,7 @@ public class WebfistTest extends WebfingerBasicTest {
     }
 
     @Test
-    public void shouldValidateDKIMSignature() throws IOException {
+    public void shouldValidateDKIMSignature() throws IOException, WebFingerClientException {
         when(mockHttpClient.execute(any(HttpUriRequest.class)))
                 .thenReturn(Response.notFound());
         when(mockHttpClient.execute(argThat(hasUrl("https://webfist.org/"))))
@@ -92,7 +95,7 @@ public class WebfistTest extends WebfingerBasicTest {
 
     @BeforeClass
     public static void setUpWebFistTestClass() throws IOException {
-        client = new WebfingerClient(true);
+        client = new WebFingerClient(true);
         client.setHttpClient(mockHttpClient);
     }
 

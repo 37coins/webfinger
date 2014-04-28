@@ -13,8 +13,8 @@ public class Tester {
 	 * @throws URISyntaxException 
 	 * @throws IOException 
 	 */
-	public static void main(String[] args) throws URISyntaxException, IOException {
-		WebfingerClient wc = new WebfingerClient(true);
+	public static void main(String[] args) throws URISyntaxException, IOException, WebFingerClientException {
+		WebFingerClient wc = new WebFingerClient(true);
 		JsonResourceDescriptor jrd = wc.webFinger("jangkim321@gmail.com");
 		String bitcoinAddr = null;
 		for (Link l : jrd.getLinks()){

@@ -15,21 +15,20 @@ import java.io.IOException;
 public class Response {
     public static final ProtocolVersion HTTP = new ProtocolVersion("HTTP", 1, 1);
 
-    public static HttpResponse found () { return createResponse(302, "Found"); }
-    public static HttpResponse notFound() { return createResponse(404, "Not Found"); }
-    public static HttpResponse forbidden() { return createResponse(403, "Forbidden"); }
-    public static HttpResponse badRequest() { return createResponse(400, "Bad Request"); }
+    public static HttpResponse found () { return create(302, "Found"); }
+    public static HttpResponse notFound() { return create(404, "Not Found"); }
 
-    public static HttpResponse serverError() { return createResponse(500, "Internal Server Error"); }
-    public static HttpResponse serviceUnavailable() { return createResponse(502, "Service Unavailable"); }
-
-    public static HttpResponse createResponse(int statusCode, String reason) {
+    public static HttpResponse create(int statusCode, String reason) {
         return new BasicHttpResponse(new BasicStatusLine(HTTP, statusCode, reason));
+    }
+
+    public static HttpResponse create(int statusCode) {
+        return new BasicHttpResponse(new BasicStatusLine(HTTP, statusCode, ""));
     }
 
     public static HttpResponse OKResponseWithDataFromFile(String filename) {
         try {
-            HttpResponse response = createResponse(200, "OK");
+            HttpResponse response = create(200, "OK");
             BasicHttpEntity httpEntity = new BasicHttpEntity();
             httpEntity.setContent(new FileInputStream("src/test/fixtures/" + filename));
             response.setEntity(httpEntity);

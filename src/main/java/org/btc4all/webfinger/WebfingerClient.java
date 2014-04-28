@@ -5,7 +5,6 @@ import java.net.URI;
 import java.net.URISyntaxException;
 
 import org.apache.http.HttpResponse;
-import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpRequestBase;
@@ -14,18 +13,16 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.btc4all.webfinger.pojo.JsonResourceDescriptor;
 import org.btc4all.webfinger.pojo.Link;
 
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class WebfingerClient {
+public class WebFingerClient {
 	private boolean webfistFallback;
 	private HttpClient client;
-    private static final Logger log = LoggerFactory.getLogger(WebfingerClient.class);
+    private static final Logger log = LoggerFactory.getLogger(WebFingerClient.class);
 
-    public WebfingerClient(boolean webfistFallback){
+    public WebFingerClient(boolean webfistFallback){
 		this.webfistFallback = webfistFallback;
 		client = HttpClientBuilder.create().build();
 	}
@@ -34,29 +31,47 @@ public class WebfingerClient {
         this.client = client;
     }
 
-	protected JsonResourceDescriptor getJRD(HttpRequestBase request) throws IOException{
-		try{
-			HttpResponse response = client.execute(request);
-			if (response.getStatusLine().getStatusCode()>=200&&response.getStatusLine().getStatusCode()<300){
-				return new ObjectMapper().readValue(response.getEntity().getContent(), JsonResourceDescriptor.class);
-			}
-		}catch(JsonParseException | JsonMappingException | ClientProtocolException ex){
-			ex.printStackTrace();
-		}
-		return null;
+    protected JsonResourceDescriptor parseJRD(HttpResponse response) throws WebFingerClientException {
+        try {
+            return new ObjectMapper().readValue(response.getEntity().getContent(), JsonResourceDescriptor.class);
+        } catch (IOException e){
+            throw new WebFingerClientException(WebFingerClientException.Reason.ERROR_PARSING_JRD, e);
+        }
+    }
+
+	protected JsonResourceDescriptor getJRD(HttpRequestBase request) throws WebFingerClientException {
+        HttpResponse response;
+        try {
+            response = client.execute(request);
+        } catch (IOException e) {
+            throw new WebFingerClientException(WebFingerClientException.Reason.ERROR_GETTING_RESOURCE, e);
+        }
+
+        if (response.getStatusLine().getStatusCode() >= 200 && response.getStatusLine().getStatusCode() < 300){
+            return parseJRD(response);
+        }
+        return null;
 	}
 
-    protected String discoverHostname(String resource) throws URISyntaxException {
+    protected String discoverHostname(String resource) throws URISyntaxException, WebFingerClientException {
         URI uri = new URI(resource);
-        if (uri.getRawAuthority() != null) {
-            return uri.getRawAuthority();
+        String urlAuthority = uri.getRawAuthority();
+        if (urlAuthority != null) {
+            return toLowerCase(urlAuthority);
         }
 
         String[] parts = uri.getRawSchemeSpecificPart().split("@");
-        return parts.length > 1 ? parts[parts.length - 1] : null;
+        if (parts.length == 1) {
+            throw new WebFingerClientException(WebFingerClientException.Reason.INVALID_URI);
+        }
+        return toLowerCase(parts[parts.length - 1]);
     }
 
-	public JsonResourceDescriptor webFinger(String resource) {
+    private String toLowerCase(String str) {
+        return !str.contains("%") ? str.toLowerCase() : str;
+    }
+
+    public JsonResourceDescriptor webFinger(String resource) throws WebFingerClientException {
         JsonResourceDescriptor jrd = null;
         try {
             // prepend default scheme if needed
@@ -64,18 +79,17 @@ public class WebfingerClient {
                 resource = "acct:" + resource;
             }
 
-            String host = discoverHostname(resource);
-            if (host == null) {
-                return jrd;
-            }
-
-            HttpGet fingerHttpGet = new HttpGet("https://" + host + "/.well-known/webfinger");
+            HttpGet fingerHttpGet = new HttpGet("https://" + discoverHostname(resource) + "/.well-known/webfinger");
             URI uri = new URIBuilder(fingerHttpGet.getURI()).addParameter("resource", resource).build();
             HttpRequestBase request = new HttpGet(uri);
             request.setHeader("Accept","application/jrd+json");
             jrd = getJRD(request);
 
-            if (jrd == null && webfistFallback){
+            if (jrd == null) {
+                if (!webfistFallback) {
+                    throw new ResourceNotFoundException(resource);
+                }
+
                 HttpGet bitHttpGet = new HttpGet("https://webfist.org/.well-known/webfinger");
                 URI uri2 = new URIBuilder(bitHttpGet.getURI()).addParameter("resource", resource).build();
                 HttpRequestBase bitRequest = new HttpGet(uri2);
@@ -94,9 +108,9 @@ public class WebfingerClient {
                         }
                     }
                 }
-
             }
-        } catch (IOException | URISyntaxException e) {
+
+        } catch (URISyntaxException e) {
             log.error("Wenfinger query failed to URI:" + resource, e);
         }
         return jrd;

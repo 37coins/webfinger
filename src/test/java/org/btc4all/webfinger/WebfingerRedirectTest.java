@@ -20,13 +20,13 @@ import static org.mockito.Mockito.times;
  * @author Kosta Korenkov <7r0ggy@gmail.com>
  */
 @RunWith(Parameterized.class)
-public class WebfingerRedirectTest extends AbstractWebfingerClientTest {
+public class WebFingerRedirectTest extends AbstractWebfingerClientTest {
 
     private int statusCode;
     
     private String reason;
 
-    public WebfingerRedirectTest(int statusCode, String reason) {
+    public WebFingerRedirectTest(int statusCode, String reason) {
         this.statusCode = statusCode;
         this.reason = reason;
     }
@@ -50,8 +50,8 @@ public class WebfingerRedirectTest extends AbstractWebfingerClientTest {
      * RFC 7033 4.2
      */
     @Test
-    public void shouldWorkWithRedirectResponse() throws IOException {
-        setUpToRespondWithRedirectToValidResource(Response.createResponse(statusCode, reason), "https://example.org/bobs-data");
+    public void shouldWorkWithRedirectResponse() throws IOException, WebFingerClientException {
+        setUpToRespondWithRedirectToValidResource(Response.create(statusCode, reason), "https://example.org/bobs-data");
 
         JsonResourceDescriptor jrd = client.webFinger("bob@example.com");
 
