@@ -3,9 +3,9 @@ package org.btc4all.webfinger;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpUriRequest;
-import org.apache.http.impl.client.HttpClientBuilder;
 import org.btc4all.webfinger.helpers.MockHelper;
 import org.btc4all.webfinger.helpers.Response;
+import org.hamcrest.Matcher;
 import org.junit.Before;
 import org.junit.BeforeClass;
 
@@ -43,7 +43,6 @@ public class AbstractWebfingerClientTest {
             when(mockHttpClient.execute(any(HttpUriRequest.class))).thenReturn(
                     Response.OKResponseWithDataFromFile(filename)
             );
-            client.setHttpClient(mockHttpClient);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -52,8 +51,6 @@ public class AbstractWebfingerClientTest {
     protected void setUpToRespondWith(HttpResponse response) {
         try {
             when(mockHttpClient.execute(any(HttpUriRequest.class))).thenReturn(response);
-
-            client.setHttpClient(mockHttpClient);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -74,16 +71,18 @@ public class AbstractWebfingerClientTest {
             ))).thenReturn(
                     Response.OKResponseWithDataFromFile("valid_jrd.json")
             );
-
-            client.setHttpClient(mockHttpClient);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
+    protected void verifyHttpClientExecutedWithArgThat(Matcher<HttpUriRequest> matcher) throws IOException {
+        verify(mockHttpClient).execute(argThat(matcher));
+    }
+
     @Before
     public void setUp() throws Exception {
         reset(mockHttpClient);
-        client.setHttpClient(HttpClientBuilder.create().build());
+        client.setHttpClient(mockHttpClient);
     }
 }

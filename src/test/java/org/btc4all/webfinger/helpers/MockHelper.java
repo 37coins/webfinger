@@ -62,19 +62,23 @@ public class MockHelper {
         }
     }
 
-    public HttpClientBuilder createTrustNoOneHttpClient() throws NoSuchAlgorithmException, KeyManagementException, KeyStoreException {
-        return HttpClients
-                .custom()
-                .setSslcontext(
-                        SSLContexts
-                                .custom()
-                                .loadTrustMaterial(KeyStore.getInstance(KeyStore.getDefaultType()), new TrustStrategy() {
-                                    public boolean isTrusted(X509Certificate[] chain, String authType) throws CertificateException {
-                                        return false;
-                                    }
-                                })
-                                .build()
-                );
+    public HttpClientBuilder createTrustNoOneHttpClient() {
+        try {
+            return HttpClients
+                    .custom()
+                    .setSslcontext(
+                            SSLContexts
+                                    .custom()
+                                    .loadTrustMaterial(KeyStore.getInstance(KeyStore.getDefaultType()), new TrustStrategy() {
+                                        public boolean isTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+                                            return false;
+                                        }
+                                    })
+                                    .build()
+                    );
+        } catch (NoSuchAlgorithmException | KeyManagementException | KeyStoreException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 

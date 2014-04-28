@@ -1,6 +1,5 @@
 package org.btc4all.webfinger;
 
-import org.apache.http.HttpResponse;
 import org.btc4all.webfinger.helpers.Response;
 import org.btc4all.webfinger.pojo.JsonResourceDescriptor;
 import org.junit.Test;
@@ -21,13 +20,13 @@ import static org.mockito.Mockito.times;
  * @author Kosta Korenkov <7r0ggy@gmail.com>
  */
 @RunWith(Parameterized.class)
-public class WebfingerClientRedirectTest extends AbstractWebfingerClientTest {
+public class WebfingerRedirectTest extends AbstractWebfingerClientTest {
 
     private int statusCode;
     
     private String reason;
 
-    public WebfingerClientRedirectTest(int statusCode, String reason) {
+    public WebfingerRedirectTest(int statusCode, String reason) {
         this.statusCode = statusCode;
         this.reason = reason;
     }

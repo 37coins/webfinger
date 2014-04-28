@@ -10,21 +10,16 @@ import org.hamcrest.Description;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
-import org.mockito.InOrder;
 
 import java.io.IOException;
-import java.security.KeyManagementException;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
 import java.util.Iterator;
 
 import static org.btc4all.webfinger.matchers.Matchers.*;
 import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
 
 /**  @author Kosta Korenkov <7r0ggy@gmail.com> */
 @RunWith(JUnit4.class)
-public class WebfingerClientTest extends AbstractWebfingerClientTest {
+public class WebfingerBasicTest extends AbstractWebfingerClientTest {
 
 
     /**  RFC 7033 4.4 */
@@ -117,7 +112,7 @@ public class WebfingerClientTest extends AbstractWebfingerClientTest {
     public void shouldUseOnlyHttps() throws IOException {
         setUpToRespondWith("valid_jrd.json");
         client.webFinger(TEST_ACCT);
-        verify(mockHttpClient).execute(argThat(hasHttpsScheme()));
+        verifyHttpClientExecutedWithArgThat(hasHttpsScheme());
     }
 
     /**  RFC 3986 3.2.2 */
@@ -125,7 +120,7 @@ public class WebfingerClientTest extends AbstractWebfingerClientTest {
     public void shouldConvertHostToLowercase() throws IOException {
         setUpToRespondWith(Response.notFound());
         client.webFinger("bob@EXAMPLE.com");
-        verify(mockHttpClient).execute(argThat(hasHostnameMatching("example.com")));
+        verifyHttpClientExecutedWithArgThat(hasHostnameMatching("example.com"));
     }
 
     /**  RFC 7033 4.1 */
@@ -133,7 +128,7 @@ public class WebfingerClientTest extends AbstractWebfingerClientTest {
     public void requestShouldContainResourceParameterInQuery() throws IOException {
         setUpToRespondWith("valid_jrd.json");
         client.webFinger(TEST_ACCT);
-        verify(mockHttpClient).execute(argThat(hasParameterMatching("resource", ".*")));
+        verifyHttpClientExecutedWithArgThat(hasParameterMatching("resource", ".*"));
     }
 
     /**  RFC 7033 8.1 */
@@ -141,17 +136,17 @@ public class WebfingerClientTest extends AbstractWebfingerClientTest {
     public void requestShouldContainURIScheme() throws IOException {
         setUpToRespondWith("valid_jrd.json");
         client.webFinger("bob@example.com");
-        verify(mockHttpClient).execute(argThat(hasParameterMatching("resource", "^\\w+%3A.*")));
+        verifyHttpClientExecutedWithArgThat(hasParameterMatching("resource", "^\\w+%3A.*"));
     }
 
     @Test
     public void shouldWorkWithResourcesWithScheme() throws IOException {
         setUpToRespondWith("valid_jrd.json");
         client.webFinger("acct:bob@example.com");
-        verify(mockHttpClient).execute(argThat(hasParameterMatching("resource", "acct%3Abob%40example\\.com")));
+        verifyHttpClientExecutedWithArgThat(hasParameterMatching("resource", "acct%3Abob%40example\\.com"));
 
         client.webFinger("http://example.com/bob");
-        verify(mockHttpClient).execute(argThat(hasParameterMatching("resource", "http%3A%2F%2Fexample\\.com%2Fbob")));
+        verifyHttpClientExecutedWithArgThat(hasParameterMatching("resource", "http%3A%2F%2Fexample\\.com%2Fbob"));
     }
 
     /**  RFC 7033 4.1 */
@@ -159,7 +154,7 @@ public class WebfingerClientTest extends AbstractWebfingerClientTest {
     public void requestParametersShouldBePercentEncoded() throws IOException {
         setUpToRespondWith("valid_jrd.json");
         client.webFinger("bob@example.com");
-        verify(mockHttpClient).execute(argThat(hasParameterMatching("resource", "acct%3Abob%40example\\.com")));
+        verifyHttpClientExecutedWithArgThat(hasParameterMatching("resource", "acct%3Abob%40example\\.com"));
     }
 
     /**  RFC 7033 4.2 */
@@ -187,31 +182,15 @@ public class WebfingerClientTest extends AbstractWebfingerClientTest {
 
     /**  RFC 7033 4.2 */
     @Test
-    public void shouldFailOnInvalidCertResponse() throws KeyStoreException, NoSuchAlgorithmException, KeyManagementException {
-        client.setHttpClient(testHelper.createTrustNoOneHttpClient().build());
-        JsonResourceDescriptor jrd = client.webFinger("paulej@packetizer.com");
-        assertNull(jrd);
-    }
-
-    /**  RFC 7033 4.2 */
-    @Test
-    public void shouldFailWhenSecureConnectionIsNotEstablished() {
-        // here we use the host that breaks up SSL connection
-        JsonResourceDescriptor jrd = client.webFinger("brett@onebigfluke.com");
-        assertNull(jrd);
-    }
-
-    /**  RFC 7033 4.2 */
-    @Test
     public void requestShouldSpecifyJRDAcceptHeader() throws IOException {
         setUpToRespondWith("valid_jrd.json");
 
         client.webFinger("bob@example.com");
 
-        verify(mockHttpClient).execute(argThat(new BaseMatcher<HttpUriRequest>() {
+        verifyHttpClientExecutedWithArgThat(new BaseMatcher<HttpUriRequest>() {
             @Override
             public boolean matches(Object argument) {
-                Header[] acceptHeaders = ((HttpUriRequest)argument).getHeaders("Accept");
+                Header[] acceptHeaders = ((HttpUriRequest) argument).getHeaders("Accept");
                 if (acceptHeaders == null || acceptHeaders.length == 0) return false;
 
                 for (Header header : acceptHeaders) {
@@ -225,21 +204,8 @@ public class WebfingerClientTest extends AbstractWebfingerClientTest {
             public void describeTo(Description description) {
                 description.appendText("Has header Accept: application/jrd+json");
             }
-        }));
+        });
 
-    }
-
-    /**  RFC 7033 4.2 */
-    @Test
-    public void shouldRedirectOnlyToHttpsURI() throws IOException {
-        setUpToRespondWithRedirectToValidResource(Response.found(), "http://example.org/bobs-data");
-
-        JsonResourceDescriptor jrd = client.webFinger("bob@example.com");
-
-        InOrder inOrder = inOrder(mockHttpClient);
-        inOrder.verify(mockHttpClient, times(1)).execute(argThat(hasUrl("https://example.com/")));
-        inOrder.verify(mockHttpClient, never()).execute(any(HttpUriRequest.class));
-        assertNull(jrd);
     }
 
 }
