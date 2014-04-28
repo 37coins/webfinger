@@ -7,7 +7,7 @@ import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.message.BasicStatusLine;
 
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
+import java.io.IOException;
 
 /**
  * @author Kosta Korenkov <7r0ggy@gmail.com>
@@ -34,7 +34,7 @@ public class Response {
             httpEntity.setContent(new FileInputStream("src/test/fixtures/" + filename));
             response.setEntity(httpEntity);
             return response;
-        } catch (FileNotFoundException e) {
+        } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
