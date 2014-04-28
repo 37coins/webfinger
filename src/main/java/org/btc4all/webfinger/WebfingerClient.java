@@ -45,23 +45,41 @@ public class WebfingerClient {
 		}
 		return null;
 	}
-	
+
+    protected String discoverHostname(String resource) throws URISyntaxException {
+        URI uri = new URI(resource);
+        if (uri.getRawAuthority() != null) {
+            return uri.getRawAuthority();
+        }
+
+        String[] parts = uri.getRawSchemeSpecificPart().split("@");
+        return parts.length > 1 ? parts[parts.length - 1] : null;
+    }
+
 	public JsonResourceDescriptor webFinger(String resource) {
         JsonResourceDescriptor jrd = null;
         try {
-            String[] parts = new URI(resource).getRawSchemeSpecificPart().split("@");
+            // prepend default scheme if needed
+            if (!resource.matches("^\\w+:.+")) {
+                resource = "acct:" + resource;
+            }
 
-            HttpGet fingerHttpGet = new HttpGet("https://"+parts[parts.length-1]+"/.well-known/webfinger");
-            URI uri = new URIBuilder(fingerHttpGet.getURI()).addParameter("resource", "acct:"+resource).build();
+            String host = discoverHostname(resource);
+            if (host == null) {
+                return jrd;
+            }
+
+            HttpGet fingerHttpGet = new HttpGet("https://" + host + "/.well-known/webfinger");
+            URI uri = new URIBuilder(fingerHttpGet.getURI()).addParameter("resource", resource).build();
             HttpRequestBase request = new HttpGet(uri);
-            request.setHeader("Accept-Encoding","application/jrd+json");
+            request.setHeader("Accept","application/jrd+json");
             jrd = getJRD(request);
 
-            if (jrd ==null && webfistFallback){
+            if (jrd == null && webfistFallback){
                 HttpGet bitHttpGet = new HttpGet("https://webfist.org/.well-known/webfinger");
-                URI uri2 = new URIBuilder(bitHttpGet.getURI()).addParameter("resource", "acct:"+resource).build();
+                URI uri2 = new URIBuilder(bitHttpGet.getURI()).addParameter("resource", resource).build();
                 HttpRequestBase bitRequest = new HttpGet(uri2);
-                bitRequest.setHeader("Accept-Encoding","application/jrd+json");
+                bitRequest.setHeader("Accept","application/jrd+json");
                 jrd = getJRD(bitRequest);
                 //TODO: verify proof and DKIM
                 //resolve content
@@ -71,7 +89,6 @@ public class WebfingerClient {
                             HttpGet contentHttpGet = new HttpGet(l.getHref());
                             URI contentUri = new URIBuilder(contentHttpGet.getURI()).build();
                             HttpRequestBase contentRequest = new HttpGet(contentUri);
-                            contentRequest.setHeader("Accept-Encoding","application/javascript");
                             jrd = getJRD(contentRequest);
                             break;
                         }
