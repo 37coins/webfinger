@@ -33,7 +33,7 @@ public class WebfingerClient {
     protected void setHttpClient(HttpClient client) {
         this.client = client;
     }
-	
+
 	protected JsonResourceDescriptor getJRD(HttpRequestBase request) throws IOException{
 		try{
 			HttpResponse response = client.execute(request);
@@ -58,7 +58,7 @@ public class WebfingerClient {
             jrd = getJRD(request);
 
             if (jrd ==null && webfistFallback){
-                HttpGet bitHttpGet = new HttpGet("https://bitfinger.org/.well-known/webfinger");
+                HttpGet bitHttpGet = new HttpGet("https://webfist.org/.well-known/webfinger");
                 URI uri2 = new URIBuilder(bitHttpGet.getURI()).addParameter("resource", "acct:"+resource).build();
                 HttpRequestBase bitRequest = new HttpGet(uri2);
                 bitRequest.setHeader("Accept-Encoding","application/jrd+json");

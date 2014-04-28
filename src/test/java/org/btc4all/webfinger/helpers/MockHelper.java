@@ -1,6 +1,5 @@
 package org.btc4all.webfinger.helpers;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.conn.ssl.SSLContexts;
 import org.apache.http.conn.ssl.TrustStrategy;
@@ -10,29 +9,14 @@ import org.apache.http.impl.client.HttpClients;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
-import java.io.File;
-import java.io.IOException;
 import java.security.*;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
-import java.util.Map;
 
 /**
  * @author Kosta Korenkov <7r0ggy@gmail.com>
  */
 public class MockHelper {
-
-    private ObjectMapper jsonMapper = new ObjectMapper();
-
-    public MockData getData(String filename) {
-        try {
-            Map dataFixture = jsonMapper.readValue(new File("src/test/fixtures/" + filename), Map.class);
-
-            return new MockData(String.valueOf(dataFixture.get("uri")), jsonMapper.writeValueAsString(dataFixture.get("response")));
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
 
     public HttpClientBuilder makeAllTrustingClient(HttpClientBuilder httpClientBuilder) {
         // Create a trust manager that does not validate certificate chains

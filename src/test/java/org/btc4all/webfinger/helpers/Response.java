@@ -2,12 +2,12 @@ package org.btc4all.webfinger.helpers;
 
 import org.apache.http.HttpResponse;
 import org.apache.http.ProtocolVersion;
-import org.apache.http.StatusLine;
 import org.apache.http.entity.BasicHttpEntity;
 import org.apache.http.message.BasicHttpResponse;
 import org.apache.http.message.BasicStatusLine;
 
-import java.io.ByteArrayInputStream;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 
 /**
  * @author Kosta Korenkov <7r0ggy@gmail.com>
@@ -23,22 +23,20 @@ public class Response {
     public static HttpResponse serverError() { return createResponse(500, "Internal Server Error"); }
     public static HttpResponse serviceUnavailable() { return createResponse(502, "Service Unavailable"); }
 
-    public static MockHelper testHelper = new MockHelper();
-
     public static HttpResponse createResponse(int statusCode, String reason) {
         return new BasicHttpResponse(new BasicStatusLine(HTTP, statusCode, reason));
     }
 
     public static HttpResponse OKResponseWithDataFromFile(String filename) {
-        HttpResponse response = createResponse(200, "OK");
-        BasicHttpEntity httpEntity = new BasicHttpEntity();
-        MockData data = testHelper.getData(filename);
-        httpEntity.setContent(new ByteArrayInputStream(data.getResponse().getBytes()));
-        if (data.getContentType() != null) {
-            httpEntity.setContentType(data.getContentType());
+        try {
+            HttpResponse response = createResponse(200, "OK");
+            BasicHttpEntity httpEntity = new BasicHttpEntity();
+            httpEntity.setContent(new FileInputStream("src/test/fixtures/" + filename));
+            response.setEntity(httpEntity);
+            return response;
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
         }
-        response.setEntity(httpEntity);
-        return response;
     }
 
 }

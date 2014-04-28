@@ -1,26 +1,20 @@
 {
-    "uri" : "bob@example.com",
-    "response" : {
-        "subject" : "acct:bob@example.com",
-        "aliases" :
-            [
-                "https://www.example.com/~bob/"
-            ],
-        "properties" :
+    "subject": "acct:bob@example.com",
+    "aliases": [
+        "https://www.example.com/~bob/"
+    ],
+    "properties": {
+        "http://example.com/ns/role": "employee"
+    },
+    "unwanted": "unwanted property value",
+    "links": [
         {
-            "http://example.com/ns/role" : "employee"
+            "rel": "http://webfinger.example/rel/profile-page",
+            "href": "https://www.example.com/~bob/"
         },
-        "unwanted" : "unwanted property value",
-        "links" :
-            [
-                {
-                    "rel" : "http://webfinger.example/rel/profile-page",
-                    "href" : "https://www.example.com/~bob/"
-                },
-                {
-                    "rel" : "http://webfinger.example/rel/businesscard",
-                    "href" : "https://www.example.com/~bob/bob.vcf"
-                }
-            ]
-    }
+        {
+            "rel": "http://webfinger.example/rel/businesscard",
+            "href": "https://www.example.com/~bob/bob.vcf"
+        }
+    ]
 }

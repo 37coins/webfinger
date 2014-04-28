@@ -1,0 +1,12 @@
+{
+    "subject": "pithy.example@gmail.com",
+    "links": [
+        {
+            "rel": "http://webfist.org/spec/rel",
+            "href": "http://example.org/my-delegation-here.json",
+            "properties": {
+                "http://webfist.org/spec/proof": "http://webfist.org/webfist/proof/08e01fb3123de74555528daaeb2d33b513f50f88-c255b91b02617c067df89a3809f0e17197b52413?decrypt=pithy.example%40gmail.com"
+            }
+        }
+    ]
+}
