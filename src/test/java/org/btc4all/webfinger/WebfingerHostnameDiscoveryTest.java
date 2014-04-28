@@ -1,6 +1,5 @@
 package org.btc4all.webfinger;
 
-import org.apache.http.message.BasicStatusLine;
 import org.btc4all.webfinger.helpers.Response;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -51,7 +50,7 @@ public class WebfingerHostnameDiscoveryTest extends AbstractWebfingerClientTest 
     /**  RFC 7033 4, 8.2, 3.2.2 */
     @Test
     public void shouldDiscoverTargetHostFromURI() throws IOException {
-        setUpToRespondWith(Response.NOT_FOUND);
+        setUpToRespondWith(Response.notFound());
         client.webFinger(resource);
         verify(mockHttpClient).execute(argThat(hasHostnameMatching(expectedHost)));
     }

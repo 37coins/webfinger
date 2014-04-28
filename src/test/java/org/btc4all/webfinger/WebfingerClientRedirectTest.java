@@ -1,7 +1,6 @@
 package org.btc4all.webfinger;
 
-import org.apache.http.StatusLine;
-import org.apache.http.message.BasicStatusLine;
+import org.apache.http.HttpResponse;
 import org.btc4all.webfinger.helpers.Response;
 import org.btc4all.webfinger.pojo.JsonResourceDescriptor;
 import org.junit.Test;
@@ -24,24 +23,27 @@ import static org.mockito.Mockito.times;
 @RunWith(Parameterized.class)
 public class WebfingerClientRedirectTest extends AbstractWebfingerClientTest {
 
-    private StatusLine statusLine;
+    private int statusCode;
+    
+    private String reason;
 
-    public WebfingerClientRedirectTest(StatusLine statusLine) {
-        this.statusLine = statusLine;
+    public WebfingerClientRedirectTest(int statusCode, String reason) {
+        this.statusCode = statusCode;
+        this.reason = reason;
     }
 
-    @Parameterized.Parameters
+    @Parameterized.Parameters (name = "{0} {1}")
     public static java.util.Collection<Object[]> data() {
         return Arrays.asList(new Object[][]{
-                {new BasicStatusLine(Response.HTTP, 300, "Multiple Choices")},
-                {new BasicStatusLine(Response.HTTP, 301, "Moved Permanently")},
-                {new BasicStatusLine(Response.HTTP, 302, "See Other")},
-                {new BasicStatusLine(Response.HTTP, 303, "See Other")},
-                {new BasicStatusLine(Response.HTTP, 304, "Not Modified")},
-                {new BasicStatusLine(Response.HTTP, 305, "Use Proxy")},
-                {new BasicStatusLine(Response.HTTP, 306, "Switch Proxy")},
-                {new BasicStatusLine(Response.HTTP, 307, "Temporary Redirect")},
-                {new BasicStatusLine(Response.HTTP, 308, "Permanent Redirect")}
+                { 300, "Multiple Choices" },
+                { 301, "Moved Permanently" },
+                { 302, "See Other" },
+                { 303, "See Other" },
+                { 304, "Not Modified" },
+                { 305, "Use Proxy" },
+                { 306, "Switch Proxy" },
+                { 307, "Temporary Redirect" },
+                { 308, "Permanent Redirect" }
         });
     }
 
@@ -50,7 +52,7 @@ public class WebfingerClientRedirectTest extends AbstractWebfingerClientTest {
      */
     @Test
     public void shouldWorkWithRedirectResponse() throws IOException {
-        setUpToRespondWithRedirectToValidResource(statusLine, "https://example.org/bobs-data");
+        setUpToRespondWithRedirectToValidResource(Response.createResponse(statusCode, reason), "https://example.org/bobs-data");
 
         JsonResourceDescriptor jrd = client.webFinger("bob@example.com");
 

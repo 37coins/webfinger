@@ -1,11 +1,9 @@
 package org.btc4all.webfinger;
 
 import org.apache.http.HttpResponse;
-import org.apache.http.StatusLine;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.message.BasicHttpResponse;
 import org.btc4all.webfinger.helpers.MockHelper;
 import org.btc4all.webfinger.helpers.Response;
 import org.junit.Before;
@@ -17,9 +15,7 @@ import static org.btc4all.webfinger.matchers.Matchers.hasUrl;
 import static org.btc4all.webfinger.matchers.Matchers.isNot;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.argThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.reset;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 /**
  * @author Kosta Korenkov <7r0ggy@gmail.com>
@@ -53,10 +49,9 @@ public class AbstractWebfingerClientTest {
         }
     }
 
-    protected void setUpToRespondWith(StatusLine statusLine) {
+    protected void setUpToRespondWith(HttpResponse response) {
         try {
-            when(mockHttpClient.execute(any(HttpUriRequest.class))).thenReturn(
-                    new BasicHttpResponse(statusLine));
+            when(mockHttpClient.execute(any(HttpUriRequest.class))).thenReturn(response);
 
             client.setHttpClient(mockHttpClient);
         } catch (IOException e) {
@@ -64,9 +59,8 @@ public class AbstractWebfingerClientTest {
         }
     }
 
-    protected void setUpToRespondWithRedirectToValidResource(StatusLine statusLine, final String location) {
+    protected void setUpToRespondWithRedirectToValidResource(HttpResponse redirectResponse, final String location) {
         try {
-            HttpResponse redirectResponse = new BasicHttpResponse(statusLine);
             redirectResponse.setHeader("Location", location);
 
             when(mockHttpClient.execute(argThat(

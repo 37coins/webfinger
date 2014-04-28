@@ -123,7 +123,7 @@ public class WebfingerClientTest extends AbstractWebfingerClientTest {
     /**  RFC 3986 3.2.2 */
     @Test
     public void shouldConvertHostToLowercase() throws IOException {
-        setUpToRespondWith(Response.NOT_FOUND);
+        setUpToRespondWith(Response.notFound());
         client.webFinger("bob@EXAMPLE.com");
         verify(mockHttpClient).execute(argThat(hasHostnameMatching("example.com")));
     }
@@ -165,23 +165,23 @@ public class WebfingerClientTest extends AbstractWebfingerClientTest {
     /**  RFC 7033 4.2 */
     @Test
     public void shouldFailOn4xxResponse() {
-        setUpToRespondWith(Response.NOT_FOUND);
+        setUpToRespondWith(Response.notFound());
         assertNull(client.webFinger(TEST_ACCT)); //TODO: is it really the best way to specify that no data found?
 
-        setUpToRespondWith(Response.FORBIDDEN);
+        setUpToRespondWith(Response.forbidden());
         assertNull(client.webFinger(TEST_ACCT));
 
-        setUpToRespondWith(Response.BAD_REQUEST);
+        setUpToRespondWith(Response.badRequest());
         assertNull(client.webFinger(TEST_ACCT));
     }
 
     /**  RFC 7033 4.2 */
     @Test
     public void shouldFailOn5xxResponse() {
-        setUpToRespondWith(Response.SERVER_ERROR);
+        setUpToRespondWith(Response.serverError());
         assertNull(client.webFinger(TEST_ACCT));
 
-        setUpToRespondWith(Response.SERVICE_UNAVAILABLE);
+        setUpToRespondWith(Response.serviceUnavailable());
         assertNull(client.webFinger(TEST_ACCT));
     }
 
@@ -232,7 +232,7 @@ public class WebfingerClientTest extends AbstractWebfingerClientTest {
     /**  RFC 7033 4.2 */
     @Test
     public void shouldRedirectOnlyToHttpsURI() throws IOException {
-        setUpToRespondWithRedirectToValidResource(Response.FOUND, "http://example.org/bobs-data");
+        setUpToRespondWithRedirectToValidResource(Response.found(), "http://example.org/bobs-data");
 
         JsonResourceDescriptor jrd = client.webFinger("bob@example.com");
 
@@ -240,12 +240,6 @@ public class WebfingerClientTest extends AbstractWebfingerClientTest {
         inOrder.verify(mockHttpClient, times(1)).execute(argThat(hasUrl("https://example.com/")));
         inOrder.verify(mockHttpClient, never()).execute(any(HttpUriRequest.class));
         assertNull(jrd);
-    }
-
-    /**  RFC 7033 4.2 */
-    @Test
-    public void shouldValidateCertOnRedirect() {
-
     }
 
 }

@@ -15,21 +15,22 @@ import java.io.ByteArrayInputStream;
 public class Response {
     public static final ProtocolVersion HTTP = new ProtocolVersion("HTTP", 1, 1);
 
-    public static final StatusLine FOUND = new BasicStatusLine(HTTP, 302, "Found");
+    public static HttpResponse found () { return createResponse(302, "Found"); }
+    public static HttpResponse notFound() { return createResponse(404, "Not Found"); }
+    public static HttpResponse forbidden() { return createResponse(403, "Forbidden"); }
+    public static HttpResponse badRequest() { return createResponse(400, "Bad Request"); }
 
-    public static final StatusLine NOT_FOUND = new BasicStatusLine(HTTP, 404, "Not Found");
-    public static final StatusLine FORBIDDEN = new BasicStatusLine(HTTP, 403, "Forbidden");
-    public static final StatusLine BAD_REQUEST = new BasicStatusLine(HTTP, 400, "Bad Request");
+    public static HttpResponse serverError() { return createResponse(500, "Internal Server Error"); }
+    public static HttpResponse serviceUnavailable() { return createResponse(502, "Service Unavailable"); }
 
-    public static final StatusLine SERVER_ERROR = new BasicStatusLine(HTTP, 500, "Internal Server Error");
-    public static final StatusLine SERVICE_UNAVAILABLE = new BasicStatusLine(HTTP, 502, "Service Unavailable");
+    public static MockHelper testHelper = new MockHelper();
 
-    public static final StatusLine OK = new BasicStatusLine(HTTP, 200, "OK");
-
-    public static final MockHelper testHelper = new MockHelper();
+    public static HttpResponse createResponse(int statusCode, String reason) {
+        return new BasicHttpResponse(new BasicStatusLine(HTTP, statusCode, reason));
+    }
 
     public static HttpResponse OKResponseWithDataFromFile(String filename) {
-        HttpResponse response = new BasicHttpResponse(Response.OK);
+        HttpResponse response = createResponse(200, "OK");
         BasicHttpEntity httpEntity = new BasicHttpEntity();
         MockData data = testHelper.getData(filename);
         httpEntity.setContent(new ByteArrayInputStream(data.getResponse().getBytes()));
