@@ -48,17 +48,4 @@ public class WebFingerTest extends AbstractWebfingerClientTest {
         client.webFinger("brett@onebigfluke.com");
     }
 
-    /**  RFC 7033 4.2 */
-    @Test
-    public void shouldRedirectOnlyToHttpsURI() throws IOException, WebFingerClientException {
-        setUpToRespondWithRedirectToValidResource(Response.found(), "http://example.org/bobs-data");
-
-        JsonResourceDescriptor jrd = client.webFinger("bob@example.com");
-
-        InOrder inOrder = inOrder(mockHttpClient);
-        inOrder.verify(mockHttpClient, times(1)).execute(argThat(hasUrl("https://example.com/")));
-        inOrder.verify(mockHttpClient, never()).execute(any(HttpUriRequest.class));
-        assertNull(jrd);
-    }
-
 }

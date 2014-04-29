@@ -38,6 +38,12 @@ public class AbstractWebfingerClientTest {
         client = new WebFingerClient(false);
     }
 
+    @Before
+    public void setUp() throws Exception {
+        reset(mockHttpClient);
+        client.setHttpClient(mockHttpClient);
+    }
+
     protected void setUpToRespondWith(String filename) {
         try {
             when(mockHttpClient.execute(any(HttpUriRequest.class))).thenReturn(
@@ -56,33 +62,7 @@ public class AbstractWebfingerClientTest {
         }
     }
 
-    protected void setUpToRespondWithRedirectToValidResource(HttpResponse redirectResponse, final String location) {
-        try {
-            redirectResponse.setHeader("Location", location);
-
-            when(mockHttpClient.execute(argThat(
-                    isNot(hasUrl(location))
-            ))).thenReturn(
-                    redirectResponse
-            );
-
-            when(mockHttpClient.execute(argThat(
-                    hasUrl(location)
-            ))).thenReturn(
-                    Response.OKResponseWithDataFromFile("valid_jrd.json")
-            );
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
     protected void verifyHttpClientExecutedWithArgThat(Matcher<HttpUriRequest> matcher) throws IOException {
         verify(mockHttpClient).execute(argThat(matcher));
-    }
-
-    @Before
-    public void setUp() throws Exception {
-        reset(mockHttpClient);
-        client.setHttpClient(mockHttpClient);
     }
 }

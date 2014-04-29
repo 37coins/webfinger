@@ -4,12 +4,16 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 
+import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
+import org.apache.http.ProtocolException;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.client.utils.URIBuilder;
+import org.apache.http.impl.client.DefaultRedirectStrategy;
 import org.apache.http.impl.client.HttpClientBuilder;
+import org.apache.http.protocol.HttpContext;
 import org.btc4all.webfinger.pojo.JsonResourceDescriptor;
 import org.btc4all.webfinger.pojo.Link;
 
@@ -18,17 +22,21 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 public class WebFingerClient {
-	private boolean webfistFallback;
-	private HttpClient client;
+
     private static final Logger log = LoggerFactory.getLogger(WebFingerClient.class);
+
+    private boolean webfistFallback;
+
+    private HttpClient httpClient;
+
 
     public WebFingerClient(boolean webfistFallback){
 		this.webfistFallback = webfistFallback;
-		client = HttpClientBuilder.create().build();
+		httpClient = HttpClientFactory.getClientBuilder().build();
 	}
 
     protected void setHttpClient(HttpClient client) {
-        this.client = client;
+        this.httpClient = client;
     }
 
     protected JsonResourceDescriptor parseJRD(HttpResponse response) throws WebFingerClientException {
@@ -42,7 +50,7 @@ public class WebFingerClient {
 	protected JsonResourceDescriptor getJRD(HttpRequestBase request) throws WebFingerClientException {
         HttpResponse response;
         try {
-            response = client.execute(request);
+            response = httpClient.execute(request);
         } catch (IOException e) {
             throw new WebFingerClientException(WebFingerClientException.Reason.ERROR_GETTING_RESOURCE, e);
         }
