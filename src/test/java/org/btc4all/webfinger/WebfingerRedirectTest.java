@@ -1,7 +1,6 @@
 package org.btc4all.webfinger;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.http.impl.client.HttpClientBuilder;
 import org.btc4all.webfinger.helpers.MockHelper;
 import org.btc4all.webfinger.pojo.JsonResourceDescriptor;
 import org.junit.Before;
@@ -60,7 +59,7 @@ public class WebFingerRedirectTest {
                 {303, "https://127.0.0.1:1082/bobs-data", true},
                 {307, "https://127.0.0.1:1082/bobs-data", true},
                 {308, "https://127.0.0.1:1082/bobs-data", true},
-                {301, "http://127.0.0.1:1082/bobs-data", false}
+                {301, "http://127.0.0.1:1080/bobs-data", false}
         });
     }
 
