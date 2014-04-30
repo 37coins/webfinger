@@ -3,6 +3,7 @@ package org.btc4all.webfinger;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Collection;
 
 import org.apache.http.HttpRequest;
 import org.apache.http.HttpResponse;
@@ -80,7 +81,6 @@ public class WebFingerClient {
     }
 
     public JsonResourceDescriptor webFinger(String resource) throws WebFingerClientException {
-        JsonResourceDescriptor jrd = null;
         try {
             // prepend default scheme if needed
             if (!resource.matches("^\\w+:.+")) {
@@ -91,13 +91,9 @@ public class WebFingerClient {
             URI uri = new URIBuilder(fingerHttpGet.getURI()).addParameter("resource", resource).build();
             HttpRequestBase request = new HttpGet(uri);
             request.setHeader("Accept","application/jrd+json");
-            jrd = getJRD(request);
+            JsonResourceDescriptor jrd = getJRD(request);
 
-            if (jrd == null) {
-                if (!webfistFallback) {
-                    throw new ResourceNotFoundException(resource);
-                }
-
+            if (jrd == null && webfistFallback) {
                 HttpGet bitHttpGet = new HttpGet("https://webfist.org/.well-known/webfinger");
                 URI uri2 = new URIBuilder(bitHttpGet.getURI()).addParameter("resource", resource).build();
                 HttpRequestBase bitRequest = new HttpGet(uri2);
@@ -118,10 +114,14 @@ public class WebFingerClient {
                 }
             }
 
+            if (jrd == null) {
+                throw new ResourceNotFoundException(resource);
+            }
+            return jrd;
+
         } catch (URISyntaxException e) {
-            log.error("Wenfinger query failed to URI:" + resource, e);
+            throw new WebFingerClientException(WebFingerClientException.Reason.INVALID_URI, e);
         }
-        return jrd;
     }
 
 }

@@ -14,10 +14,8 @@ import org.mockito.InOrder;
 import java.io.IOException;
 
 import static org.btc4all.webfinger.matchers.Matchers.hasUrl;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.argThat;
+import static org.junit.Assert.*;
+import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.*;
 
 /**
@@ -29,7 +27,7 @@ import static org.mockito.Mockito.*;
 public class WebFistTest extends WebFingerBasicTest {
 
     @Test
-    public void shouldFallbackToWebfist() throws IOException, WebFingerClientException {
+    public void shouldFallbackToWebFist() throws IOException, WebFingerClientException {
         setUpToRespondWith("valid_jrd.json");
 
         JsonResourceDescriptor jrd = client.webFinger("pithy.example@gmail.com");
@@ -46,14 +44,18 @@ public class WebFistTest extends WebFingerBasicTest {
     }
 
     @Test
-    public void shouldFailIfWebfistServerIsUnavailable() throws IOException, WebFingerClientException {
+    public void shouldFailIfWebFistServerIsUnavailable() throws IOException, WebFingerClientException {
         when(mockHttpClient.execute(any(HttpUriRequest.class)))
                 .thenReturn(Response.notFound());
         when(mockHttpClient.execute(argThat(hasUrl("https://webfist.org/"))))
                 .thenReturn(Response.notFound());
 
-        JsonResourceDescriptor jrd = client.webFinger("pithy.example@gmail.com");
-        assertNull(jrd);
+        try {
+            client.webFinger("pithy.example@gmail.com");
+            fail();
+        } catch (WebFingerClientException e) {
+            assertEquals(ResourceNotFoundException.class, e.getClass());
+        }
     }
 
     @Test

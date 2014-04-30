@@ -166,6 +166,7 @@ public class WebFingerBasicTest extends AbstractWebfingerClientTest {
             setUpToRespondWith(Response.create(statusCode));
             try {
                 client.webFinger(TEST_ACCT);
+                fail();
             } catch (Exception e) {
                 assertEquals(ResourceNotFoundException.class, e.getClass());
             }
