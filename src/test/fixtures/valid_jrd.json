@@ -16,6 +16,10 @@
             "property": {
                 "link-property": "the value"
             }
+        },
+        {
+            "rel": "http://webfinger.example/rel/businesscard",
+            "href": "https://www.example.com/~bob/bob.vcf"
         }
     ]
 }

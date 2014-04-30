@@ -1,13 +1,9 @@
 package org.btc4all.webfinger.matchers;
 
-import org.apache.http.NameValuePair;
 import org.apache.http.client.methods.HttpUriRequest;
-import org.apache.http.client.utils.URIBuilder;
 import org.hamcrest.Description;
 import org.mockito.ArgumentMatcher;
 
-import java.net.URISyntaxException;
-import java.util.List;
 import java.util.regex.Pattern;
 
 /**
@@ -29,12 +25,11 @@ public class HasParameterMatching extends ArgumentMatcher<HttpUriRequest> {
         String uri = ((HttpUriRequest)o).getURI().toString();
         Pattern pattern = Pattern.compile(regex);
         String[] parts = uri.split("[\\?&]");
-        for (String part : parts) {
-            String[] paramParts = part.split("=");
+        for (int i = 0; i < parts.length && !result; i++ ) {
+            String[] paramParts = parts[i].split("=");
             if (paramParts.length != 2) continue;
             if (paramParts[0].equals(name)) {
                 result = pattern.matcher(paramParts[1]).matches();
-                break;
             }
         }
 

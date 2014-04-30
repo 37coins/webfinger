@@ -130,10 +130,14 @@ public class WebFistTest extends WebFingerBasicTest {
     }
 
     @Override
-    protected void verifyHttpClientExecutedWithArgThat(Matcher<HttpUriRequest> matcher) throws IOException {
-        InOrder inOrder = inOrder(mockHttpClient);
-        inOrder.verify(mockHttpClient, times(1)).execute(argThat(hasUrl("https://example.com/")));
-        inOrder.verify(mockHttpClient).execute(argThat(matcher));
+    protected void verifyHttpClientExecutedWithArgThat(Matcher<HttpUriRequest> matcher) {
+        try {
+            InOrder inOrder = inOrder(mockHttpClient);
+            inOrder.verify(mockHttpClient, times(1)).execute(argThat(hasUrl("https://example.com/")));
+            inOrder.verify(mockHttpClient).execute(argThat(matcher));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 }

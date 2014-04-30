@@ -62,7 +62,11 @@ public class AbstractWebfingerClientTest {
         }
     }
 
-    protected void verifyHttpClientExecutedWithArgThat(Matcher<HttpUriRequest> matcher) throws IOException {
-        verify(mockHttpClient).execute(argThat(matcher));
+    protected void verifyHttpClientExecutedWithArgThat(Matcher<HttpUriRequest> matcher) {
+        try {
+            verify(mockHttpClient).execute(argThat(matcher));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
