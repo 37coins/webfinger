@@ -141,15 +141,6 @@ public class WebFingerBasicTest extends AbstractWebfingerClientTest {
         verifyHttpClientExecutedWithArgThat(hasParameterMatching("resource", "acct%3Abob%40example\\.com"));
     }
 
-    @Test
-    public void shouldWorkForHttpResources() throws WebFingerClientException {
-        setUpToRespondWith("valid_jrd.json");
-
-        client.webFinger("http://example.com/bob");
-        verifyHttpClientExecutedWithArgThat(hasParameterMatching("resource", "http%3A%2F%2Fexample\\.com%2Fbob"));
-    }
-
-
     /**  RFC 7033 4.1 */
     @Test
     public void requestParametersShouldBePercentEncoded() throws WebFingerClientException {
