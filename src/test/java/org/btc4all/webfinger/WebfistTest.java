@@ -4,6 +4,8 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.btc4all.webfinger.helpers.Response;
 import org.btc4all.webfinger.pojo.JsonResourceDescriptor;
+import org.btc4all.webfinger.webfist.ProofValidationException;
+import org.btc4all.webfinger.webfist.ProofValidator;
 import org.hamcrest.Matcher;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -15,7 +17,8 @@ import java.io.IOException;
 
 import static org.btc4all.webfinger.matchers.Matchers.hasUrl;
 import static org.junit.Assert.*;
-import static org.mockito.Matchers.*;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.*;
 
 /**
@@ -52,67 +55,21 @@ public class WebFistTest extends WebFingerBasicTest {
 
         try {
             client.webFinger("pithy.example@gmail.com");
-            fail();
+            fail("Call to the client should fail");
         } catch (WebFingerClientException e) {
             assertEquals(ResourceNotFoundException.class, e.getClass());
         }
     }
 
-    @Test
-    public void shouldFailIfDKIMSignatureIsInvalid() throws IOException, WebFingerClientException {
-        when(mockHttpClient.execute(any(HttpUriRequest.class)))
-                .thenReturn(Response.notFound());
-        when(mockHttpClient.execute(argThat(hasUrl("https://webfist.org/"))))
-                .thenReturn(Response.OKResponseWithDataFromFile("webfist_invalid_DKIM_response.json"));
-        when(mockHttpClient.execute(argThat(
-                hasUrl("http://webfist.org/webfist/proof/08e01fb3123de74555528daaeb2d33b513f50f88-c255b91b02617c067df89a3809f0e17197b52413?decrypt=pithy.example%40gmail.com")
-        )))
-            .thenReturn(Response.OKResponseWithDataFromFile("delegation_email_w_invalid_DKIM.eml"));
-
-        JsonResourceDescriptor jrd = client.webFinger("pithy.example@gmail.com");
-
-        verify(mockHttpClient, never()).execute(argThat(hasUrl("http://example.org/my-delegation-here.json")));
-        assertNull(jrd);
-    }
-
-    @Test
-    public void shouldValidateDKIMSignature() throws IOException, WebFingerClientException {
-        when(mockHttpClient.execute(any(HttpUriRequest.class)))
-                .thenReturn(Response.notFound());
-        when(mockHttpClient.execute(argThat(hasUrl("https://webfist.org/"))))
-                .thenReturn(Response.OKResponseWithDataFromFile("webfist_response.json"));
-
-        JsonResourceDescriptor jrd = client.webFinger("pithy.example@gmail.com");
-
-        InOrder inOrder = inOrder(mockHttpClient);
-        inOrder.verify(mockHttpClient, times(1)).execute(argThat(hasUrl("https://gmail.com/")));
-        inOrder.verify(mockHttpClient, times(1)).execute(argThat(hasUrl("https://webfist.org/")));
-        inOrder.verify(mockHttpClient, times(1)).execute(argThat(
-                hasUrl("http://webfist.org/webfist/proof/08e01fb3123de74555528daaeb2d33b513f50f88-c255b91b02617c067df89a3809f0e17197b52413?decrypt=pithy.example%40gmail.com")
-        ));
-        assertNotNull(jrd);
-    }
-
-
 
     @BeforeClass
     public static void setUpWebFistTestClass() throws IOException {
-        client = new WebFingerClient(true);
-        client.setHttpClient(mockHttpClient);
+        client = new WebFingerClient(true, mockHttpClient, new NopProofValidator());
     }
 
     @Override
     protected void setUpToRespondWith(String filename) {
-        try {
-            when(mockHttpClient.execute(any(HttpUriRequest.class)))
-                    .thenReturn(Response.notFound());
-            when(mockHttpClient.execute(argThat(hasUrl("https://webfist.org/"))))
-                    .thenReturn(Response.OKResponseWithDataFromFile("webfist_response.json"));
-            when(mockHttpClient.execute(argThat(hasUrl("http://example.org/my-delegation-here.json"))))
-                    .thenReturn(Response.OKResponseWithDataFromFile(filename));
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        setUpToRespondWith(Response.OKResponseWithDataFromFile(filename));
     }
 
     @Override
@@ -137,6 +94,12 @@ public class WebFistTest extends WebFingerBasicTest {
             inOrder.verify(mockHttpClient).execute(argThat(matcher));
         } catch (IOException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    static class NopProofValidator implements ProofValidator {
+        @Override
+        public void validate(String resource, String proofLink) throws ProofValidationException {
         }
     }
 

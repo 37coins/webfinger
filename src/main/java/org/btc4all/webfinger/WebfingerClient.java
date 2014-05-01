@@ -8,6 +8,10 @@ import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.client.utils.URIBuilder;
 import org.btc4all.webfinger.pojo.JsonResourceDescriptor;
 import org.btc4all.webfinger.pojo.Link;
+import org.btc4all.webfinger.util.Util;
+import org.btc4all.webfinger.webfist.DKIMProofValidator;
+import org.btc4all.webfinger.webfist.ProofValidationException;
+import org.btc4all.webfinger.webfist.ProofValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,14 +30,16 @@ public class WebFingerClient {
 
     private HttpClient httpClient;
 
+    private ProofValidator proofValidator;
 
     public WebFingerClient(boolean webfistFallback){
-		this.webfistFallback = webfistFallback;
-		httpClient = HttpClientFactory.getClientBuilder().build();
+        this(webfistFallback, HttpClientFactory.getClientBuilder().build(), new DKIMProofValidator());
 	}
 
-    protected void setHttpClient(HttpClient client) {
-        this.httpClient = client;
+    protected WebFingerClient(boolean webfistFallback, HttpClient httpClient, ProofValidator proofValidator) {
+        this.webfistFallback = webfistFallback;
+        this.httpClient = httpClient;
+        this.proofValidator = proofValidator;
     }
 
     protected JsonResourceDescriptor parseJRD(HttpResponse response) throws WebFingerClientException {
@@ -52,7 +58,7 @@ public class WebFingerClient {
             throw new WebFingerClientException(WebFingerClientException.Reason.ERROR_GETTING_RESOURCE, e);
         }
 
-        if (response.getStatusLine().getStatusCode() >= 200 && response.getStatusLine().getStatusCode() < 300){
+        if (Util.isSucceed(response)){
             return parseJRD(response);
         }
         return null;
@@ -63,21 +69,17 @@ public class WebFingerClient {
             URI uri = new URI(resource);
             String urlAuthority = uri.getRawAuthority();
             if (urlAuthority != null) {
-                return toLowerCase(urlAuthority);
+                return Util.toLowerCase(urlAuthority);
             }
 
             String[] parts = uri.getRawSchemeSpecificPart().split("@");
             if (parts.length == 1) {
                 throw new WebFingerClientException(WebFingerClientException.Reason.INVALID_URI);
             }
-            return toLowerCase(parts[parts.length - 1]);
+            return Util.toLowerCase(parts[parts.length - 1]);
         } catch (URISyntaxException e) {
             throw new WebFingerClientException(WebFingerClientException.Reason.INVALID_URI, e);
         }
-    }
-
-    protected String toLowerCase(String str) {
-        return !str.contains("%") ? str.toLowerCase() : str;
     }
 
     protected URI getWebFingerURI(URI baseURI, String resource, String[] relLinks) throws WebFingerClientException {
@@ -105,6 +107,24 @@ public class WebFingerClient {
         }
     }
 
+    protected void validateProof(String resource, JsonResourceDescriptor jrd) throws WebFingerClientException {
+        try {
+            Link delegationLink = jrd.getLinkByRel("http://webfist.org/spec/rel");
+            if (delegationLink == null || delegationLink.getProperties().get(new URI("http://webfist.org/spec/proof")) == null) {
+                throw new WebFingerClientException(WebFingerClientException.Reason.WEBFIST_NO_PROOF);
+            }
+
+            String proofLink = delegationLink.getProperties().get(new URI("http://webfist.org/spec/proof"));
+
+            proofValidator.validate(resource, proofLink);
+        } catch (ProofValidationException e) {
+            throw new WebFingerClientException(WebFingerClientException.Reason.WEBFIST_PROOF_VALIDATION_FAILED, e);
+        } catch (URISyntaxException e) {
+            throw new WebFingerClientException(WebFingerClientException.Reason.WEBFIST_NO_PROOF, e);
+        }
+    }
+
+
     public JsonResourceDescriptor webFinger(String resource, String... rel) throws WebFingerClientException {
 
         // prepend default scheme if needed
@@ -124,9 +144,9 @@ public class WebFingerClient {
             HttpRequestBase bitRequest = new HttpGet(uri);
             bitRequest.setHeader("Accept","application/jrd+json");
             jrd = getJRD(bitRequest);
-            //TODO: verify proof and DKIM
-            //resolve content
+
             if (jrd != null && jrd.getLinks() != null){
+                validateProof(resource, jrd);
                 for (Link l : jrd.getLinks()){
                     if (l.getRel().contains("webfist.org/spec/rel")){
                         HttpRequestBase contentRequest = new HttpGet(l.getHref());

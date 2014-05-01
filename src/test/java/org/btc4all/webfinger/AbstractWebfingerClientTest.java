@@ -5,14 +5,13 @@ import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.btc4all.webfinger.helpers.MockHelper;
 import org.btc4all.webfinger.helpers.Response;
+import org.btc4all.webfinger.webfist.DKIMProofValidator;
 import org.hamcrest.Matcher;
 import org.junit.Before;
 import org.junit.BeforeClass;
 
 import java.io.IOException;
 
-import static org.btc4all.webfinger.matchers.Matchers.hasUrl;
-import static org.btc4all.webfinger.matchers.Matchers.isNot;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.*;
@@ -35,13 +34,12 @@ public class AbstractWebfingerClientTest {
     public static void setUpClass() {
         testHelper = new MockHelper();
         mockHttpClient = mock(HttpClient.class);
-        client = new WebFingerClient(false);
+        client = new WebFingerClient(false, mockHttpClient, new DKIMProofValidator());
     }
 
     @Before
     public void setUp() throws Exception {
         reset(mockHttpClient);
-        client.setHttpClient(mockHttpClient);
     }
 
     protected void setUpToRespondWith(String filename) {

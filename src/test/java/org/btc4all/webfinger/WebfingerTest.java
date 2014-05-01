@@ -3,6 +3,7 @@ package org.btc4all.webfinger;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.btc4all.webfinger.helpers.Response;
 import org.btc4all.webfinger.pojo.JsonResourceDescriptor;
+import org.btc4all.webfinger.webfist.DKIMProofValidator;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
@@ -36,14 +37,14 @@ public class WebFingerTest extends AbstractWebfingerClientTest {
     /**  RFC 7033 4.2 */
     @Test (expected = WebFingerClientException.class)
     public void shouldFailOnInvalidCertResponse() throws WebFingerClientException {
-        client.setHttpClient(testHelper.createTrustNoOneHttpClient().build());
+        client = new WebFingerClient(false, testHelper.createTrustNoOneHttpClient().build(), new DKIMProofValidator());
         client.webFinger("paulej@packetizer.com");
     }
 
     /**  RFC 7033 4.2 */
     @Test (expected = WebFingerClientException.class)
     public void shouldFailWhenSecureConnectionIsNotEstablished() throws WebFingerClientException {
-        client.setHttpClient(testHelper.createTrustNoOneHttpClient().build());
+        client = new WebFingerClient(false, testHelper.createTrustNoOneHttpClient().build(), new DKIMProofValidator());
         // here we use the host that breaks up SSL connection
         client.webFinger("brett@onebigfluke.com");
     }

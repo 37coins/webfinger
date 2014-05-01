@@ -3,6 +3,7 @@ package org.btc4all.webfinger;
 import org.apache.commons.io.IOUtils;
 import org.btc4all.webfinger.helpers.MockHelper;
 import org.btc4all.webfinger.pojo.JsonResourceDescriptor;
+import org.btc4all.webfinger.webfist.DKIMProofValidator;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -45,8 +46,9 @@ public class WebFingerRedirectTest {
 
     @BeforeClass
     public static void setUpClass() {
-        client = new WebFingerClient(false);
-        client.setHttpClient(new MockHelper().makeAllTrustingClient(HttpClientFactory.getClientBuilder()).build());
+        client = new WebFingerClient(false,
+                new MockHelper().makeAllTrustingClient(HttpClientFactory.getClientBuilder()).build(),
+                new DKIMProofValidator());
 
         mockServer = new MockServerClient("localhost", 1080);
     }

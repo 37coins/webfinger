@@ -23,9 +23,16 @@ public class WebFingerClientException extends Exception {
         return reason;
     }
 
+    @Override
+    public String toString() {
+        return "WebFingerClientException{" +
+                "reason=" + reason +
+                '}';
+    }
+
     public enum Reason {
         INVALID_URI,
         ERROR_GETTING_RESOURCE,
-        ERROR_PARSING_JRD
+        WEBFIST_PROOF_VALIDATION_FAILED, WEBFIST_NO_PROOF, ERROR_PARSING_JRD
     }
 }
