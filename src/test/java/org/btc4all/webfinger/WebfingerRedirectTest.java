@@ -26,9 +26,9 @@ import static org.mockserver.model.HttpResponse.response;
  * @author Kosta Korenkov <7r0ggy@gmail.com>
  */
 @RunWith(Parameterized.class)
-public class WebFingerRedirectTest {
+public class WebfingerRedirectTest {
 
-    protected static WebFingerClient client;
+    protected static WebfingerClient client;
 
     protected static MockServerClient mockServer;
 
@@ -38,7 +38,7 @@ public class WebFingerRedirectTest {
 
     private boolean expectToSucceed;
 
-    public WebFingerRedirectTest(int statusCode, String location, boolean expectToSucceed) {
+    public WebfingerRedirectTest(int statusCode, String location, boolean expectToSucceed) {
         this.statusCode = statusCode;
         this.location = location;
         this.expectToSucceed = expectToSucceed;
@@ -46,7 +46,7 @@ public class WebFingerRedirectTest {
 
     @BeforeClass
     public static void setUpClass() {
-        client = new WebFingerClient(false,
+        client = new WebfingerClient(false,
                 new MockHelper().makeAllTrustingClient(HttpClientFactory.getClientBuilder()).build(),
                 new DKIMProofValidator());
 
@@ -92,13 +92,13 @@ public class WebFingerRedirectTest {
      * RFC 7033 4.2
      */
     @Test
-    public void shouldWorkWithRedirectResponse() throws WebFingerClientException {
+    public void shouldWorkWithRedirectResponse() throws WebfingerClientException {
         try {
             JsonResourceDescriptor jrd = client.webFinger("bob@127.0.0.1:1082");
 
             assertNotNull(jrd);
             assertEquals(jrd.getSubject().toString(), "acct:bob@example.com");
-        } catch (WebFingerClientException e) {
+        } catch (WebfingerClientException e) {
             assertFalse(expectToSucceed);
         }
     }

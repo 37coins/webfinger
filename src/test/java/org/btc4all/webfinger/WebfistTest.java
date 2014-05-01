@@ -22,15 +22,15 @@ import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.*;
 
 /**
- * Inherits the set of tests defined in WebFingerBasicTest to be ran against the WebFist fallback code.
+ * Inherits the set of tests defined in WebfingerBasicTest to be ran against the WebFist fallback code.
  *
  * @author Kosta Korenkov <7r0ggy@gmail.com>
  */
 @RunWith(JUnit4.class)
-public class WebFistTest extends WebFingerBasicTest {
+public class WebfistTest extends WebfingerBasicTest {
 
     @Test
-    public void shouldFallbackToWebFist() throws IOException, WebFingerClientException {
+    public void shouldFallbackToWebFist() throws IOException, WebfingerClientException {
         setUpToRespondWith("valid_jrd.json");
 
         JsonResourceDescriptor jrd = client.webFinger("pithy.example@gmail.com");
@@ -47,13 +47,13 @@ public class WebFistTest extends WebFingerBasicTest {
     }
 
     @Test
-    public void shouldFallbackToWebFistOnlyForAcctResources() throws IOException, WebFingerClientException {
+    public void shouldFallbackToWebFistOnlyForAcctResources() throws IOException, WebfingerClientException {
         setUpToRespondWith("valid_jrd.json");
 
         try {
             client.webFinger("http://example.com/bob");
-            fail("Expected WebFingerClientException");
-        } catch (WebFingerClientException e) {
+            fail("Expected WebfingerClientException");
+        } catch (WebfingerClientException e) {
             assertEquals(ResourceNotFoundException.class, e.getClass());
         }
 
@@ -64,7 +64,7 @@ public class WebFistTest extends WebFingerBasicTest {
 
 
     @Test
-    public void shouldFailIfWebFistServerIsUnavailable() throws IOException, WebFingerClientException {
+    public void shouldFailIfWebFistServerIsUnavailable() throws IOException, WebfingerClientException {
         when(mockHttpClient.execute(any(HttpUriRequest.class)))
                 .thenReturn(Response.notFound());
         when(mockHttpClient.execute(argThat(hasUrl("https://webfist.org/"))))
@@ -73,7 +73,7 @@ public class WebFistTest extends WebFingerBasicTest {
         try {
             client.webFinger("pithy.example@gmail.com");
             fail("Call to the client should fail");
-        } catch (WebFingerClientException e) {
+        } catch (WebfingerClientException e) {
             assertEquals(ResourceNotFoundException.class, e.getClass());
         }
     }
@@ -81,7 +81,7 @@ public class WebFistTest extends WebFingerBasicTest {
 
     @BeforeClass
     public static void setUpWebFistTestClass() throws IOException {
-        client = new WebFingerClient(true, mockHttpClient, new NopProofValidator());
+        client = new WebfingerClient(true, mockHttpClient, new NopProofValidator());
     }
 
     @Override

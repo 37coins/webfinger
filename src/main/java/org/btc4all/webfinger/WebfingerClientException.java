@@ -3,18 +3,18 @@ package org.btc4all.webfinger;
 /**
  * @author Kosta Korenkov <7r0ggy@gmail.com>
  */
-public class WebFingerClientException extends Exception {
+public class WebfingerClientException extends Exception {
 
     private Reason reason;
 
-    public WebFingerClientException() {
+    public WebfingerClientException() {
     }
 
-    public WebFingerClientException(Reason reason) {
+    public WebfingerClientException(Reason reason) {
         this.reason = reason;
     }
 
-    public WebFingerClientException(Reason reason, Throwable cause) {
+    public WebfingerClientException(Reason reason, Throwable cause) {
         super(cause);
         this.reason = reason;
     }
@@ -25,7 +25,7 @@ public class WebFingerClientException extends Exception {
 
     @Override
     public String toString() {
-        return "WebFingerClientException{" +
+        return "WebfingerClientException{" +
                 "reason=" + reason +
                 '}';
     }

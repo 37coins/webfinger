@@ -5,7 +5,7 @@ import java.net.URI;
 /**
  * @author Kosta Korenkov <7r0ggy@gmail.com>
  */
-public class ResourceNotFoundException extends WebFingerClientException {
+public class ResourceNotFoundException extends WebfingerClientException {
 
     private URI resource;
 

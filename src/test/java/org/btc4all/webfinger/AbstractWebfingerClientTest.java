@@ -23,7 +23,7 @@ public class AbstractWebfingerClientTest {
 
     public static final String TEST_ACCT = "bob@example.com";
 
-    protected static WebFingerClient client;
+    protected static WebfingerClient client;
 
     protected static MockHelper testHelper;
 
@@ -34,7 +34,7 @@ public class AbstractWebfingerClientTest {
     public static void setUpClass() {
         testHelper = new MockHelper();
         mockHttpClient = mock(HttpClient.class);
-        client = new WebFingerClient(false, mockHttpClient, new DKIMProofValidator());
+        client = new WebfingerClient(false, mockHttpClient, new DKIMProofValidator());
     }
 
     @Before

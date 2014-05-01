@@ -17,13 +17,13 @@ import static org.mockito.Mockito.*;
  * @author Kosta Korenkov <7r0ggy@gmail.com>
  */
 @RunWith(Parameterized.class)
-public class WebFingerHostnameDiscoveryTest extends AbstractWebfingerClientTest {
+public class WebfingerHostnameDiscoveryTest extends AbstractWebfingerClientTest {
 
     private String resource;
 
     private String expectedHost;
 
-    public WebFingerHostnameDiscoveryTest(String resource, String expectedHost) {
+    public WebfingerHostnameDiscoveryTest(String resource, String expectedHost) {
         this.resource = resource;
         this.expectedHost = expectedHost;
     }
@@ -57,7 +57,7 @@ public class WebFingerHostnameDiscoveryTest extends AbstractWebfingerClientTest 
         try {
             client.webFinger(resource);
             verify(mockHttpClient).execute(argThat(hasHostnameMatching(expectedHost)));
-        } catch (WebFingerClientException e) {
+        } catch (WebfingerClientException e) {
             assertTrue(expectedHost == null);
         }
     }

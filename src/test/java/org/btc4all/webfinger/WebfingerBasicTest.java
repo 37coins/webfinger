@@ -22,12 +22,12 @@ import static org.junit.Assert.*;
 
 /**  @author Kosta Korenkov <7r0ggy@gmail.com> */
 @RunWith(JUnit4.class)
-public class WebFingerBasicTest extends AbstractWebfingerClientTest {
+public class WebfingerBasicTest extends AbstractWebfingerClientTest {
 
 
     /**  RFC 7033 4.4 */
     @Test
-    public void shouldIgnoreUnknownJRDMembers() throws WebFingerClientException {
+    public void shouldIgnoreUnknownJRDMembers() throws WebfingerClientException {
         setUpToRespondWith("unwanted_member_jrd.json");
         JsonResourceDescriptor jrd = client.webFinger(TEST_ACCT);
         assertNotNull(jrd);
@@ -35,7 +35,7 @@ public class WebFingerBasicTest extends AbstractWebfingerClientTest {
 
     /**  RFC 7033 4.4 */
     @Test
-    public void shouldAcceptResponseWithMinimalJRD() throws WebFingerClientException {
+    public void shouldAcceptResponseWithMinimalJRD() throws WebfingerClientException {
         setUpToRespondWith("minimal_jrd.json");
         JsonResourceDescriptor jrd = client.webFinger(TEST_ACCT);
         assertNull(jrd.getAliases());
@@ -45,7 +45,7 @@ public class WebFingerBasicTest extends AbstractWebfingerClientTest {
 
     /**  RFC 7033 4.4 */
     @Test
-    public void shouldAcceptResponseWithLinksWithoutTypeAndHref() throws WebFingerClientException {
+    public void shouldAcceptResponseWithLinksWithoutTypeAndHref() throws WebfingerClientException {
         setUpToRespondWith("valid_jrd.json");
         JsonResourceDescriptor jrd = client.webFinger(TEST_ACCT);
         assertEquals("http://webfinger.example/rel/no-href-link", jrd.getLinks().get(1).getRel());
@@ -55,7 +55,7 @@ public class WebFingerBasicTest extends AbstractWebfingerClientTest {
 
     /**  RFC 7033 4.4 */
     @Test
-    public void shouldReturnAllKnownJRDMembers() throws WebFingerClientException {
+    public void shouldReturnAllKnownJRDMembers() throws WebfingerClientException {
         setUpToRespondWith("full_jrd.json");
         JsonResourceDescriptor jrd = client.webFinger("bob@example.com");
 
@@ -98,7 +98,7 @@ public class WebFingerBasicTest extends AbstractWebfingerClientTest {
      * it wishes to utilize.
      * */
     @Test
-    public void shouldPreferTheLastLanguageTagTitleValueIfSeveralExistForTheSameTag() throws WebFingerClientException {
+    public void shouldPreferTheLastLanguageTagTitleValueIfSeveralExistForTheSameTag() throws WebfingerClientException {
         setUpToRespondWith("duplicate_language_tag_titles_jrd.json");
         JsonResourceDescriptor jrd = client.webFinger(TEST_ACCT);
         Link link = jrd.getLinks().get(0);
@@ -112,7 +112,7 @@ public class WebFingerBasicTest extends AbstractWebfingerClientTest {
 
     /**  RFC 7033 4.2 */
     @Test
-    public void shouldUseOnlyHttps() throws WebFingerClientException {
+    public void shouldUseOnlyHttps() throws WebfingerClientException {
         setUpToRespondWith("valid_jrd.json");
         client.webFinger(TEST_ACCT);
         verifyHttpClientExecutedWithArgThat(hasHttpsScheme());
@@ -120,7 +120,7 @@ public class WebFingerBasicTest extends AbstractWebfingerClientTest {
 
     /**  RFC 7033 4.1 */
     @Test
-    public void requestShouldContainResourceParameterInQuery() throws WebFingerClientException {
+    public void requestShouldContainResourceParameterInQuery() throws WebfingerClientException {
         setUpToRespondWith("valid_jrd.json");
         client.webFinger(TEST_ACCT);
         verifyHttpClientExecutedWithArgThat(hasParameterMatching("resource", ".*"));
@@ -128,14 +128,14 @@ public class WebFingerBasicTest extends AbstractWebfingerClientTest {
 
     /**  RFC 7033 8.1 */
     @Test
-    public void requestShouldContainURIScheme() throws WebFingerClientException {
+    public void requestShouldContainURIScheme() throws WebfingerClientException {
         setUpToRespondWith("valid_jrd.json");
         client.webFinger("bob@example.com");
         verifyHttpClientExecutedWithArgThat(hasParameterMatching("resource", "^\\w+%3A.*"));
     }
 
     @Test
-    public void shouldWorkWithResourcesWithScheme() throws WebFingerClientException {
+    public void shouldWorkWithResourcesWithScheme() throws WebfingerClientException {
         setUpToRespondWith("valid_jrd.json");
         client.webFinger("acct:bob@example.com");
         verifyHttpClientExecutedWithArgThat(hasParameterMatching("resource", "acct%3Abob%40example\\.com"));
@@ -143,7 +143,7 @@ public class WebFingerBasicTest extends AbstractWebfingerClientTest {
 
     /**  RFC 7033 4.1 */
     @Test
-    public void requestParametersShouldBePercentEncoded() throws WebFingerClientException {
+    public void requestParametersShouldBePercentEncoded() throws WebfingerClientException {
         setUpToRespondWith("valid_jrd.json");
         client.webFinger("bob@example.com");
         verifyHttpClientExecutedWithArgThat(hasParameterMatching("resource", "acct%3Abob%40example\\.com"));
@@ -167,7 +167,7 @@ public class WebFingerBasicTest extends AbstractWebfingerClientTest {
 
     /**  RFC 7033 4.2 */
     @Test
-    public void requestShouldSpecifyJRDAcceptHeader() throws WebFingerClientException {
+    public void requestShouldSpecifyJRDAcceptHeader() throws WebfingerClientException {
         setUpToRespondWith("valid_jrd.json");
 
         client.webFinger("bob@example.com");
@@ -194,7 +194,7 @@ public class WebFingerBasicTest extends AbstractWebfingerClientTest {
     }
 
     @Test
-    public void shouldPassOptionalRelParameterToServer() throws WebFingerClientException {
+    public void shouldPassOptionalRelParameterToServer() throws WebfingerClientException {
         setUpToRespondWith("valid_jrd.json");
 
         client.webFinger("bob@example.com", "http://webfinger.example/rel/profile-page");
@@ -203,7 +203,7 @@ public class WebFingerBasicTest extends AbstractWebfingerClientTest {
     }
 
     @Test
-    public void shouldPassSeveralOptionalRelParametersToServer() throws WebFingerClientException {
+    public void shouldPassSeveralOptionalRelParametersToServer() throws WebfingerClientException {
         setUpToRespondWith("valid_jrd.json");
 
         client.webFinger("bob@example.com", "http://webfinger.example/rel/profile-page", "http://webfinger.example/rel/businesscard");
@@ -217,7 +217,7 @@ public class WebFingerBasicTest extends AbstractWebfingerClientTest {
     }
 
     @Test
-    public void shouldDoClientSideRelFiltering() throws WebFingerClientException {
+    public void shouldDoClientSideRelFiltering() throws WebfingerClientException {
         setUpToRespondWith("valid_jrd.json");
 
         JsonResourceDescriptor jrd = client.webFinger("bob@example.com", "http://webfinger.example/rel/profile-page");
@@ -230,7 +230,7 @@ public class WebFingerBasicTest extends AbstractWebfingerClientTest {
     }
 
     @Test
-    public void shouldDoClientSideRelFilteringIfTargetRelIsNotPresent() throws WebFingerClientException {
+    public void shouldDoClientSideRelFilteringIfTargetRelIsNotPresent() throws WebfingerClientException {
         setUpToRespondWith("valid_jrd.json");
 
         JsonResourceDescriptor jrd = client.webFinger("bob@example.com", "http://webfinger.example/rel/non-existing-rel");
@@ -239,7 +239,7 @@ public class WebFingerBasicTest extends AbstractWebfingerClientTest {
     }
 
     @Test
-    public void clientSideRelFilteringShouldNotFailIfNoLinksPresent() throws WebFingerClientException {
+    public void clientSideRelFilteringShouldNotFailIfNoLinksPresent() throws WebfingerClientException {
         setUpToRespondWith("minimal_jrd.json");
 
         JsonResourceDescriptor jrd = client.webFinger("bob@example.com", "http://webfinger.example/rel/profile-page");

@@ -22,9 +22,9 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
-public class WebFingerClient {
+public class WebfingerClient {
 
-    private static final Logger log = LoggerFactory.getLogger(WebFingerClient.class);
+    private static final Logger log = LoggerFactory.getLogger(WebfingerClient.class);
 
     private boolean webfistFallback;
 
@@ -32,30 +32,30 @@ public class WebFingerClient {
 
     private ProofValidator proofValidator;
 
-    public WebFingerClient(boolean webfistFallback){
+    public WebfingerClient(boolean webfistFallback){
         this(webfistFallback, HttpClientFactory.getClientBuilder().build(), new DKIMProofValidator());
 	}
 
-    protected WebFingerClient(boolean webfistFallback, HttpClient httpClient, ProofValidator proofValidator) {
+    protected WebfingerClient(boolean webfistFallback, HttpClient httpClient, ProofValidator proofValidator) {
         this.webfistFallback = webfistFallback;
         this.httpClient = httpClient;
         this.proofValidator = proofValidator;
     }
 
-    protected JsonResourceDescriptor parseJRD(HttpResponse response) throws WebFingerClientException {
+    protected JsonResourceDescriptor parseJRD(HttpResponse response) throws WebfingerClientException {
         try {
             return new ObjectMapper().readValue(response.getEntity().getContent(), JsonResourceDescriptor.class);
         } catch (IOException e){
-            throw new WebFingerClientException(WebFingerClientException.Reason.ERROR_PARSING_JRD, e);
+            throw new WebfingerClientException(WebfingerClientException.Reason.ERROR_PARSING_JRD, e);
         }
     }
 
-	protected JsonResourceDescriptor getJRD(HttpRequestBase request) throws WebFingerClientException {
+	protected JsonResourceDescriptor getJRD(HttpRequestBase request) throws WebfingerClientException {
         HttpResponse response;
         try {
             response = httpClient.execute(request);
         } catch (IOException e) {
-            throw new WebFingerClientException(WebFingerClientException.Reason.ERROR_GETTING_RESOURCE, e);
+            throw new WebfingerClientException(WebfingerClientException.Reason.ERROR_GETTING_RESOURCE, e);
         }
 
         if (Util.isSucceed(response)){
@@ -64,7 +64,7 @@ public class WebFingerClient {
         return null;
 	}
 
-    protected String discoverHostname(URI resourceUri) throws WebFingerClientException {
+    protected String discoverHostname(URI resourceUri) throws WebfingerClientException {
         String urlAuthority = resourceUri.getRawAuthority();
         if (urlAuthority != null) {
             return Util.toLowerCase(urlAuthority);
@@ -72,12 +72,12 @@ public class WebFingerClient {
 
         String[] parts = resourceUri.getRawSchemeSpecificPart().split("@");
         if (parts.length == 1) {
-            throw new WebFingerClientException(WebFingerClientException.Reason.INVALID_URI);
+            throw new WebfingerClientException(WebfingerClientException.Reason.INVALID_URI);
         }
         return Util.toLowerCase(parts[parts.length - 1]);
     }
 
-    protected URI getWebFingerURI(URI baseURI, URI resource, String[] relLinks) throws WebFingerClientException {
+    protected URI getWebFingerURI(URI baseURI, URI resource, String[] relLinks) throws WebfingerClientException {
         try {
             URIBuilder uri = new URIBuilder(baseURI);
             uri.addParameter("resource", resource.toString());
@@ -86,7 +86,7 @@ public class WebFingerClient {
             }
             return uri.build();
         } catch (URISyntaxException e) {
-            throw new WebFingerClientException(WebFingerClientException.Reason.INVALID_URI, e);
+            throw new WebfingerClientException(WebfingerClientException.Reason.INVALID_URI, e);
         }
     }
 
@@ -102,24 +102,24 @@ public class WebFingerClient {
         }
     }
 
-    protected void validateProof(URI resourceURI, JsonResourceDescriptor jrd) throws WebFingerClientException {
+    protected void validateProof(URI resourceURI, JsonResourceDescriptor jrd) throws WebfingerClientException {
         try {
             Link delegationLink = jrd.getLinkByRel("http://webfist.org/spec/rel");
             if (delegationLink == null || delegationLink.getProperties().get(new URI("http://webfist.org/spec/proof")) == null) {
-                throw new WebFingerClientException(WebFingerClientException.Reason.WEBFIST_NO_PROOF);
+                throw new WebfingerClientException(WebfingerClientException.Reason.WEBFIST_NO_PROOF);
             }
 
             String proofLink = delegationLink.getProperties().get(new URI("http://webfist.org/spec/proof"));
 
             proofValidator.validate(resourceURI.toString(), proofLink);
         } catch (ProofValidationException e) {
-            throw new WebFingerClientException(WebFingerClientException.Reason.WEBFIST_PROOF_VALIDATION_FAILED, e);
+            throw new WebfingerClientException(WebfingerClientException.Reason.WEBFIST_PROOF_VALIDATION_FAILED, e);
         } catch (URISyntaxException e) {
-            throw new WebFingerClientException(WebFingerClientException.Reason.WEBFIST_NO_PROOF, e);
+            throw new WebfingerClientException(WebfingerClientException.Reason.WEBFIST_NO_PROOF, e);
         }
     }
 
-    protected URI getResourceURI(String resource) throws WebFingerClientException {
+    protected URI getResourceURI(String resource) throws WebfingerClientException {
         // prepend default scheme if needed
         if (!resource.matches("^\\w+:.+")) {
             resource = "acct:" + resource;
@@ -128,11 +128,11 @@ public class WebFingerClient {
         try {
             return new URI(resource);
         } catch (URISyntaxException e) {
-            throw new WebFingerClientException(WebFingerClientException.Reason.INVALID_URI, e);
+            throw new WebfingerClientException(WebfingerClientException.Reason.INVALID_URI, e);
         }
     }
 
-    public JsonResourceDescriptor webFinger(String resource, String... rel) throws WebFingerClientException {
+    public JsonResourceDescriptor webFinger(String resource, String... rel) throws WebfingerClientException {
 
         URI resourceURI = getResourceURI(resource);
 
