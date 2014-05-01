@@ -1,22 +1,24 @@
 package org.btc4all.webfinger;
 
+import java.net.URI;
+
 /**
  * @author Kosta Korenkov <7r0ggy@gmail.com>
  */
 public class ResourceNotFoundException extends WebFingerClientException {
 
-    private String resource;
+    private URI resource;
 
-    public ResourceNotFoundException(String resource) {
+    public ResourceNotFoundException(URI resource) {
         this.resource = resource;
     }
 
-    public String getResource() {
+    public URI getResource() {
         return resource;
     }
 
     @Override
     public String toString() {
-        return "WebFinger resource not found: " + resource;
+        return "WebFinger resource not found: " + resource.toString();
     }
 }

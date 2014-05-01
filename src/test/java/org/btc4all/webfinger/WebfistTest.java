@@ -47,6 +47,23 @@ public class WebFistTest extends WebFingerBasicTest {
     }
 
     @Test
+    public void shouldFallbackToWebFistOnlyForAcctResources() throws IOException, WebFingerClientException {
+        setUpToRespondWith("valid_jrd.json");
+
+        try {
+            client.webFinger("http://example.com/bob");
+            fail("Expected WebFingerClientException");
+        } catch (WebFingerClientException e) {
+            assertEquals(ResourceNotFoundException.class, e.getClass());
+        }
+
+        InOrder inOrder = inOrder(mockHttpClient);
+        inOrder.verify(mockHttpClient, times(1)).execute(argThat(hasUrl("https://example.com/")));
+        inOrder.verify(mockHttpClient, never()).execute(any(HttpUriRequest.class));
+    }
+
+
+    @Test
     public void shouldFailIfWebFistServerIsUnavailable() throws IOException, WebFingerClientException {
         when(mockHttpClient.execute(any(HttpUriRequest.class)))
                 .thenReturn(Response.notFound());
