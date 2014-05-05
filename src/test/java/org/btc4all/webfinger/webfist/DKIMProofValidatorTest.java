@@ -1,6 +1,9 @@
 package org.btc4all.webfinger.webfist;
 
 import org.apache.http.client.HttpClient;
+import org.apache.james.jdkim.DKIMVerifier;
+import org.apache.james.jdkim.exceptions.FailException;
+import org.btc4all.webfinger.helpers.MockHelper;
 import org.btc4all.webfinger.helpers.Response;
 import org.junit.Before;
 import org.junit.Test;
@@ -9,10 +12,14 @@ import org.junit.runners.JUnit4;
 import org.mockito.InOrder;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Arrays;
 import java.util.List;
 
 import static org.btc4all.webfinger.matchers.Matchers.hasUrl;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.*;
@@ -39,18 +46,29 @@ public class DKIMProofValidatorTest {
     }
 
     @Test (expected = ProofValidationException.class)
-    public void shouldFailIfProofIsOfDifferentSender() throws ProofValidationException {
-        validator.validate("jangkim321@gmail.com", proofLink);
+    public void shouldFailIfProofIsOfDifferentSender() throws ProofValidationException, URISyntaxException {
+        validator.validate(new URI("jangkim321@gmail.com"), proofLink);
     }
 
     @Test (expected = ProofValidationException.class)
-    public void shouldFailIfProofEmailIsNotSigned() throws ProofValidationException, IOException {
+    public void shouldFailIfProofIsSignedByDifferentDomain() throws ProofValidationException, IOException, FailException, URISyntaxException {
+        when(mockHttpClient.execute(argThat(hasUrl("http://webfist.org/webfist/proof/"))))
+                .thenReturn(Response.OKResponseWithDataFromFile("proof_email_for-pithy.example@yahoo.com-signed-by-gmail.eml"));
+
+        DKIMVerifier mockVerifier = mock(DKIMVerifier.class);
+        when(mockVerifier.verify(any(InputStream.class))).thenReturn(Arrays.asList(MockHelper.getGmailSignature()));
+        validator = new DKIMProofValidator(mockHttpClient, mockVerifier);
+
+        validator.validate(new URI("pithy.example@yahoo.com"), proofLink);
+    }
+
+    @Test (expected = ProofValidationException.class)
+    public void shouldFailIfProofEmailIsNotSigned() throws ProofValidationException, IOException, URISyntaxException {
         when(mockHttpClient.execute(argThat(hasUrl("http://webfist.org/webfist/proof/"))))
                 .thenReturn(Response.OKResponseWithDataFromFile("proof_email_without_DKIM.eml"));
 
-        validator.validate("pithy.example@gmail.com", proofLink);
+        validator.validate(new URI("pithy.example@gmail.com"), proofLink);
     }
-
 
     @Test
     public void shouldFailIfDKIMValidationFails() throws IOException {
@@ -61,20 +79,26 @@ public class DKIMProofValidatorTest {
                     .thenReturn(Response.OKResponseWithDataFromFile(proofEmail));
 
             try {
-                validator.validate("pithy.example@gmail.com", proofLink);
+                validator.validate(new URI("pithy.example@gmail.com"), proofLink);
                 fail("Expected ProofValidationException");
-            } catch (ProofValidationException e) {
+            } catch (Exception e) {
+                assertEquals(ProofValidationException.class, e.getClass());
             }
         }
     }
 
     @Test
-    public void shouldFetchProofEmail() throws IOException, ProofValidationException {
+    public void shouldFetchProofEmail() throws IOException, ProofValidationException, URISyntaxException {
 
-        validator.validate("pithy.example@gmail.com", proofLink);
+        validator.validate(new URI("pithy.example@gmail.com"), proofLink);
 
         InOrder inOrder = inOrder(mockHttpClient);
         inOrder.verify(mockHttpClient, times(1)).execute(argThat(hasUrl(proofLink)));
+    }
+
+    @Test
+    public void shouldValidateProperProof() throws URISyntaxException, ProofValidationException {
+        validator.validate(new URI("pithy.example@gmail.com"), proofLink);
     }
 
 }

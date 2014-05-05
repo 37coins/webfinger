@@ -1,0 +1,34 @@
+Received: by mail-ie0-f193.google.com with SMTP id s9so8663810iec.4
+        for <verify@webfist.org>; Mon, 24 Jun 2013 22:53:15 -0700 (PDT)
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed;
+        d=gmail.com; s=20120113;
+        h=mime-version:date:message-id:subject:from:to:content-type;
+        bh=dWVctwRVYeZLS6k+JW/Mq347cKTcoK1egNISXD/hN5Y=;
+        b=oIAFSls95dJG9/CiSJBcQq4sx6AVIWgNw3xr6P4fpBjgMu+0CkanuWFd9r9e8mh3/2
+         C2wgoMsxbTLufR+zOdyGjLK7SitN+w9JnLyZ6s62+oOaOR5Hy5cRj7vEapHe+Y2HbuMC
+         T9y9UH/zCeE5DIOD5fsloy2pFI2f3FCkYRj4ZgP6clw2U4Ue2IGVBlPdPz+VKgmOO0qT
+         aK/+c3EODEpCdjRA9BBNVTv2VbOhPRlO6GazCCT9qztfSbPutfFrcBnJxunQ5/ZZ5nKX
+         +xDofsSywNk7PWAff8sIjR+D0UCq+qTa2/dVC2AuCJkvTI0EpN5hhMN7tN1Z+nggS6Zn
+         PPgg==
+MIME-Version: 1.0
+X-Received: by 10.50.60.2 with SMTP id d2mr6077680igr.52.1372139595574; Mon,
+ 24 Jun 2013 22:53:15 -0700 (PDT)
+Received: by 10.64.145.69 with HTTP; Mon, 24 Jun 2013 22:53:15 -0700 (PDT)
+Date: Mon, 24 Jun 2013 22:53:15 -0700
+Message-ID: <CAK3M4CXHHrvLArWPCcdnPh0i5JGZkQw8L_RW-YsB8eKhrivm9g@mail.gmail.com>
+Subject:
+From: Example Account <pithy.example@yahoo.com>
+To: verify@webfist.org
+Content-Type: multipart/alternative; boundary=047d7b15b1172d343004dff425dd
+
+--047d7b15b1172d343004dff425dd
+Content-Type: text/plain; charset=ISO-8859-1
+
+webfist = http://example.com/my-delegation-here.json
+
+--047d7b15b1172d343004dff425dd
+Content-Type: text/html; charset=ISO-8859-1
+
+<div dir="ltr">webfist = <a href="http://example.com/my-delegation-here.json">http://example.com/my-delegation-here.json</a><div><br></div></div>
+
+--047d7b15b1172d343004dff425dd--

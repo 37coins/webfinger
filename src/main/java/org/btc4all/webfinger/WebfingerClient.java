@@ -111,7 +111,7 @@ public class WebfingerClient {
 
             String proofLink = delegationLink.getProperties().get(new URI("http://webfist.org/spec/proof"));
 
-            proofValidator.validate(resourceURI.toString(), proofLink);
+            proofValidator.validate(resourceURI, proofLink);
         } catch (ProofValidationException e) {
             throw new WebfingerClientException(WebfingerClientException.Reason.WEBFIST_PROOF_VALIDATION_FAILED, e);
         } catch (URISyntaxException e) {

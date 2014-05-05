@@ -81,7 +81,7 @@ public class WebfistTest extends WebfingerBasicTest {
 
     @BeforeClass
     public static void setUpWebFistTestClass() throws IOException {
-        client = new WebfingerClient(true, mockHttpClient, new NopProofValidator());
+        client = new WebfingerClient(true, mockHttpClient, mock(ProofValidator.class));
     }
 
     @Override
@@ -111,12 +111,6 @@ public class WebfistTest extends WebfingerBasicTest {
             inOrder.verify(mockHttpClient).execute(argThat(matcher));
         } catch (IOException e) {
             throw new RuntimeException(e);
-        }
-    }
-
-    static class NopProofValidator implements ProofValidator {
-        @Override
-        public void validate(String resource, String proofLink) throws ProofValidationException {
         }
     }
 

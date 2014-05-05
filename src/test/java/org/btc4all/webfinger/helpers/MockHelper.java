@@ -1,14 +1,20 @@
 package org.btc4all.webfinger.helpers;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.conn.ssl.SSLContexts;
 import org.apache.http.conn.ssl.TrustStrategy;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
+import org.apache.james.jdkim.api.SignatureRecord;
+import org.apache.james.jdkim.tagvalue.SignatureRecordImpl;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.security.*;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
@@ -17,6 +23,22 @@ import java.security.cert.X509Certificate;
  * @author Kosta Korenkov <7r0ggy@gmail.com>
  */
 public class MockHelper {
+
+    public static InputStream getFixtureInputStream(String filename) {
+        try {
+            return new FileInputStream("src/test/fixtures/" + filename);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static SignatureRecord getGmailSignature() {
+        try {
+            return new SignatureRecordImpl(IOUtils.toString(getFixtureInputStream("gmail-dkim_signature")));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
     public HttpClientBuilder makeAllTrustingClient(HttpClientBuilder httpClientBuilder) {
         // Create a trust manager that does not validate certificate chains

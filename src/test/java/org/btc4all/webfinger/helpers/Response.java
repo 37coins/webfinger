@@ -27,15 +27,11 @@ public class Response {
     }
 
     public static HttpResponse OKResponseWithDataFromFile(String filename) {
-        try {
-            HttpResponse response = create(200, "OK");
-            BasicHttpEntity httpEntity = new BasicHttpEntity();
-            httpEntity.setContent(new FileInputStream("src/test/fixtures/" + filename));
-            response.setEntity(httpEntity);
-            return response;
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        HttpResponse response = create(200, "OK");
+        BasicHttpEntity httpEntity = new BasicHttpEntity();
+        httpEntity.setContent(MockHelper.getFixtureInputStream(filename));
+        response.setEntity(httpEntity);
+        return response;
     }
 
 }

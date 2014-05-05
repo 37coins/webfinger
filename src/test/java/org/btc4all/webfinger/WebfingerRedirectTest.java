@@ -75,7 +75,7 @@ public class WebfingerRedirectTest {
                 .respond(
                         response()
                                 .withStatusCode(200)
-                                .withBody(IOUtils.toString(new FileInputStream("src/test/fixtures/valid_jrd.json")))
+                                .withBody(IOUtils.toString(MockHelper.getFixtureInputStream("valid_jrd.json")))
                 );
         mockServer
                 .when(
