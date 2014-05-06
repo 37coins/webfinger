@@ -1,19 +1,11 @@
 package org.btc4all.webfinger;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
-
 import org.btc4all.webfinger.pojo.JsonResourceDescriptor;
 import org.btc4all.webfinger.pojo.Link;
 
 public class Tester {
 
-	/**
-	 * @param args
-	 * @throws URISyntaxException 
-	 * @throws IOException 
-	 */
-	public static void main(String[] args) throws URISyntaxException, IOException {
+	public static void main(String[] args) throws WebfingerClientException {
 		WebfingerClient wc = new WebfingerClient(true);
 		JsonResourceDescriptor jrd = wc.webFinger("jangkim321@gmail.com");
 		String bitcoinAddr = null;

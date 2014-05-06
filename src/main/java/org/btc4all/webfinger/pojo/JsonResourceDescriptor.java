@@ -12,11 +12,12 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 @JsonInclude(Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown=true)
 public class JsonResourceDescriptor {
-	
+
 	private URI subject;
 	private Set<URI> aliases;
 	private Map<URI,String> properties;
 	private List<Link> links;
+
 	public URI getSubject() {
 		return subject;
 	}
@@ -45,5 +46,14 @@ public class JsonResourceDescriptor {
 		this.links = links;
 		return this;
 	}
+
+    public Link getLinkByRel(String rel) {
+        for (Link link : links) {
+            if (link.getRel().equals(rel)) {
+                return link;
+            }
+        }
+        return null;
+    }
 
 }

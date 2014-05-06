@@ -4,9 +4,9 @@
 	<artifactId>webfinger</artifactId>
 	<packaging>jar</packaging>
 	<description>A Webfinger and host-meta client library for Java</description>
-	<name>webfinge</name>
+	<name>webfinger</name>
 	<groupId>org.btc4all</groupId>
-	<version>0.2.0-SNAPSHOT</version>
+	<version>1.0.0-SNAPSHOT</version>
 
 	<properties>
 		<!-- github server corresponds to entry in ~/.m2/settings.xml -->
@@ -24,12 +24,7 @@
 			<artifactId>slf4j-simple</artifactId>
 			<version>1.7.5</version>
 		</dependency>
-		<dependency>
-		    <groupId>junit</groupId>
-		    <artifactId>junit</artifactId>
-		    <version>4.11</version>
-		</dependency>
-		<dependency>
+        <dependency>
 		    <groupId>com.fasterxml.jackson.core</groupId>
 		    <artifactId>jackson-databind</artifactId>
 		    <version>2.3.1</version>
@@ -39,7 +34,42 @@
 			<artifactId>jackson-annotations</artifactId>
 			<version>2.3.1</version>
 		</dependency>
-	</dependencies>
+        <dependency>
+            <groupId>org.apache.james.jdkim</groupId>
+            <artifactId>apache-jdkim-library</artifactId>
+            <version>0.2</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>2.4</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-email</artifactId>
+            <version>1.2</version>
+        </dependency>
+
+
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.11</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-all</artifactId>
+            <version>1.8.4</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mock-server</groupId>
+            <artifactId>mockserver-client</artifactId>
+            <version>2.8</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
 
 	<build>
 		<plugins>
@@ -83,6 +113,34 @@
 					</execution>
 				</executions>
 			</plugin>
+            <plugin>
+                <groupId>org.mock-server</groupId>
+                <artifactId>mockserver-maven-plugin</artifactId>
+                <version>2.8</version>
+                <configuration>
+                    <serverPort>1080</serverPort>
+                    <serverSecurePort>1082</serverSecurePort>
+                    <proxyPort>1090</proxyPort>
+                    <proxySecurePort>1092</proxySecurePort>
+                    <logLevel>DEBUG</logLevel>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>process-test-classes</id>
+                        <phase>process-test-classes</phase>
+                        <goals>
+                            <goal>start</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>verify</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>stop</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
 		</plugins>
 	</build>
 
