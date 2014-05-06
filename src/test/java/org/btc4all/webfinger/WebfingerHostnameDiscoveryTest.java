@@ -39,13 +39,17 @@ public class WebfingerHostnameDiscoveryTest extends AbstractWebfingerClientTest 
                 { "mailto:bob@example.com", "example\\.com" },
                 { "bob.joe@example.com", "example\\.com" },
                 { "http://example.com/bob", "example\\.com" },
+                { "http://example.com:8080/bob", "example\\.com:8080" },
                 { "http://example.com/~bob", "example\\.com" },
                 { "https://example.com/bob", "example\\.com" },
                 { "http://discover.example.com/bob", "discover\\.example\\.com" },
                 { "http://192.168.0.11/bob", "192\\.168\\.0\\.11" },
+                { "http://192.168.0.11:8080/bob", "192\\.168\\.0\\.11:8080" },
                 { "http://[2001:db8:85a3:0:0:8a2e:370:7334]/bob", "\\[2001:db8:85a3:0:0:8a2e:370:7334\\]" },
                 { "http://%D1%82%D0%B5%D1%81%D1%82.%D1%80%D1%84/bob", "%D1%82%D0%B5%D1%81%D1%82\\.%D1%80%D1%84" },
                 { "not-an-uri", null },
+                { "", null },
+                { "acct:", null },
         });
     }
 
@@ -59,6 +63,7 @@ public class WebfingerHostnameDiscoveryTest extends AbstractWebfingerClientTest 
             verify(mockHttpClient).execute(argThat(hasHostnameMatching(expectedHost)));
         } catch (WebfingerClientException e) {
             assertTrue(expectedHost == null);
+            assertEquals(WebfingerClientException.Reason.INVALID_URI, e.getReason());
         }
     }
 
