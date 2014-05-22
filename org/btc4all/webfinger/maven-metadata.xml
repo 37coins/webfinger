@@ -4,8 +4,8 @@
   <artifactId>webfinger</artifactId>
   <versioning>
     <versions>
-      <version>0.2.0-SNAPSHOT</version>
+      <version>1.0.0-SNAPSHOT</version>
     </versions>
-    <lastUpdated>20140325223557</lastUpdated>
+    <lastUpdated>20140522192601</lastUpdated>
   </versioning>
 </metadata>
